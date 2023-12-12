@@ -35,6 +35,19 @@ def get_sql(result):
     state = get_key('state',result)
     country = get_key('country',result)
     email = get_key('email',result)
+    nickname = get_key('nickname',result)
+    licclass = get_key('class',result)
+    land = get_key('land',result)
+    print("/*")
+    print("call    = "+call);
+    print("fname   = "+fname);
+    print("name    = "+name);
+    print("nickname= "+nickname);
+    print("state   = "+state);
+    print("country = "+country);
+    print("class   = "+licclass);
+    print("land    = "+land);
+    #print("*/");
     sql =""
     sql += "DELIMITER $$ \n"
     sql += "IF (SELECT callsign FroM rcforb.rawny_details WHERE callsign = '"+call+"') = '"+call+"' THEN \n"
@@ -53,29 +66,38 @@ def get_sql(result):
         FIELDS += ",`addr2`"
         VALUES +=  ",'"+addr2+"'"
     if grid != '':
-      sql += ",`grid`='"+grid+"'"
-      FIELDS +=  ",`grid`"
-      VALUES += ",'"+grid+"'"
+        sql += ",`grid`='"+grid+"'"
+        FIELDS +=  ",`grid`"
+        VALUES += ",'"+grid+"'"
     if state != '':
-      sql += ",`state`='"+state+"'"
-      FIELDS += ",`state`"
-      VALUES += ",'"+state+"'"
+        sql += ",`state`='"+state+"'"
+        FIELDS += ",`state`"
+        VALUES += ",'"+state+"'"
     if country != '':
-      sql += ",`country`='"+country+"'"
-      FIELDS += ",`country`"
-      VALUES += ",'"+country+"'"
+        sql += ",`country`='"+country+"'"
+        FIELDS += ",`country`"
+        VALUES += ",'"+country+"'"
     if fname != '':
-      sql += ",`firstname`='"+fname+"'"
-      FIELDS += ",`firstname`"
-      VALUES += ",'"+fname+"'"
+        sql += ",`firstname`='"+fname+"'"
+        FIELDS += ",`firstname`"
+        VALUES += ",'"+fname+"'"
     if name != '':
-      sql += ",`lastname`='"+name+"'"
-      FIELDS += ",`lastname`"
-      VALUES += ",'"+name+"'"
+        sql += ",`lastname`='"+name+"'"
+        FIELDS += ",`lastname`"
+        VALUES += ",'"+name+"'"
     if email != '':
-      sql += ",`email`='"+email+"' "
-      FIELDS += ",`email`"
-      VALUES += ",'"+email+"'"
+        sql += ",`email`='"+email+"'"
+        FIELDS += ",`email`"
+        VALUES += ",'"+email+"'"
+    if licclass != '':
+        sql += ", `class`='"+licclass+"'"
+        FIELDS += ",`class`"
+        VALUES += ",'"+licclass+"'"
+    if nickname != '':
+        sql += ", `nickname`='"+nickname+"'"
+        FIELDS += ",`nickname`"
+        VALUES += ",'"+nickname+"'"
+ 
     
     sql += "     WHERE `callsign`='"+call+"';\n"
     sql += " ELSE \n"
