@@ -57,12 +57,12 @@ def get_sql(result):
     FIELDS = "`callsign`"
     VALUES = "'"+call+"'"
 
-    if fname != '' and name != '':
-        sql += "`fullname`='"+fname+" "+name+"'"
-        FIELDS += ", `fullname`"
-        VALUES +=  ",'"+fname+" "+name+"'"
+    #if fname != '' and name != '':
+    #    sql += "`fullname`='"+fname+" "+name+"'"
+    #    FIELDS += ", `fullname`"
+    #    VALUES +=  ",'"+fname+" "+name+"'"
     if addr2 != '':
-        sql += ",`addr2`='"+addr2+"'"
+        sql += "`addr2`='"+addr2+"'"
         FIELDS += ",`addr2`"
         VALUES +=  ",'"+addr2+"'"
     if grid != '':
