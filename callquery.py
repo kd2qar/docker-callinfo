@@ -23,7 +23,8 @@ def get_key(keyname,query_results):
     value = ""
     if keyname in query_results:
         value = query_results[keyname]
-    return value
+        return value
+    return '';
 
 def get_sql(result):
     call = get_key('call',result).lower()
@@ -37,11 +38,48 @@ def get_sql(result):
     sql =""
     sql += "DELIMITER $$ \n"
     sql += "IF (SELECT callsign FroM rcforb.rawny_details WHERE callsign = '"+call+"') = '"+call+"' THEN \n"
-    sql += "     UPDATE rcforb.rawny_details SET `fullname`='"+fname+" "+name+"',`addr2`='"+addr2+"',"
-    sql += "`grid`='"+grid+"',`state`='"+state+"',`country`='"+country+"',"
-    sql += "`email`='"+email+"' WHERE `callsign`='"+call+"';\n"
-    sql += "ELSE \n"
-    sql += "     INSERT INTO rcforb.rawny_details (`callsign`, `fullname`,`addr2`,`grid`,`state`,`country`,`email`) VALUES('"+call+"','"+fname+" "+name+"','"+addr2+"','"+grid+"','"+state+"','"+country+"','"+email+"') ; \n"
+    sql += "     UPDATE rcforb.rawny_details "
+    sql += "SET "
+
+    FIELDS = "`callsign`"
+    VALUES = "'"+call+"'"
+
+    if fname != '' and name != '':
+        sql += "`fullname`='"+fname+" "+name+"'"
+        FIELDS += ", `fullname`"
+        VALUES +=  ",'"+fname+" "+name+"'"
+    if addr2 != '':
+        sql += ",`addr2`='"+addr2+"'"
+        FIELDS += ",`addr2`"
+        VALUES +=  ",'"+addr2+"'"
+    if grid != '':
+      sql += ",`grid`='"+grid+"'"
+      FIELDS +=  ",`grid`"
+      VALUES += ",'"+grid+"'"
+    if state != '':
+      sql += ",`state`='"+state+"'"
+      FIELDS += ",`state`"
+      VALUES += ",'"+state+"'"
+    if country != '':
+      sql += ",`country`='"+country+"'"
+      FIELDS += ",`country`"
+      VALUES += ",'"+country+"'"
+    if fname != '':
+      sql += ",`firstname`='"+fname+"'"
+      FIELDS += ",`firstname`"
+      VALUES += ",'"+fname+"'"
+    if name != '':
+      sql += ",`lastname`='"+name+"'"
+      FIELDS += ",`lastname`"
+      VALUES += ",'"+name+"'"
+    if email != '':
+      sql += ",`email`='"+email+"' "
+      FIELDS += ",`email`"
+      VALUES += ",'"+email+"'"
+    
+    sql += "     WHERE `callsign`='"+call+"';\n"
+    sql += " ELSE \n"
+    sql += "     INSERT INTO rcforb.rawny_details ("+FIELDS+") VALUES("+VALUES+") ; \n"
     sql += "END IF $$ \n"
     sql += "DELIMITER ; "
     return sql
@@ -50,10 +88,10 @@ def get_sql(result):
 qrz = QRZ('./settings.cfg')
 
 cal = 'kd2qar'
-print(sys.argv)
+print(sys.argv[1:])
 print ("*/")
 
-for cal in sys.argv:
+for cal in sys.argv[1:]:
     try:
         print("/*")
         result = qrz.callsign(cal)

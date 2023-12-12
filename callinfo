@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker run -it --rm callquery /root/callquery.py ${@} 
+docker run -it --rm kd2qar/callinfo /root/callquery.py ${@} 
 

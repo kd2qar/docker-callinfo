@@ -12,6 +12,6 @@ build:
 run:
 	docker run  -it --rm --name ${NAME} ${TAG} /bin/bash
 
-shell:
+shell: build
 	docker run  -it --rm --name ${NAME} ${TAG} /bin/bash
 
