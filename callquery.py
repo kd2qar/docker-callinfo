@@ -5,8 +5,11 @@
 #importlib.import_module(moduleName) 
 import sys
 import qrz_query
+import certifi
+import urllib3
 from qrz_query import QRZ
 print("/*") 
+urllib3.disable_warnings();
 
 def print_keys(key_names, query_result):
     """
@@ -38,7 +41,9 @@ def get_sql(result):
     nickname = get_key('nickname',result)
     licclass = get_key('class',result)
     land = get_key('land',result)
-    print("/*")
+
+    print("/*");
+    print(result);
     print("call    = "+call);
     print("fname   = "+fname);
     print("name    = "+name);
@@ -47,10 +52,11 @@ def get_sql(result):
     print("country = "+country);
     print("class   = "+licclass);
     print("land    = "+land);
+    print("email   = "+email);
     #print("*/");
     sql =""
     sql += "DELIMITER $$ \n"
-    sql += "IF (SELECT callsign FroM rcforb.rawny_details WHERE callsign = '"+call+"') = '"+call+"' THEN \n"
+    sql += "IF (SELECT callsign FROM rcforb.rawny_details WHERE callsign = '"+call+"') = '"+call+"' THEN \n"
     sql += "     UPDATE rcforb.rawny_details "
     sql += "SET "
 
@@ -86,8 +92,10 @@ def get_sql(result):
         FIELDS += ",`lastname`"
         VALUES += ",'"+name+"'"
     if email != '':
-        sql += ",`email`='"+email+"'"
+        sql += ",`qrz_email`='"+email+"'"
         FIELDS += ",`email`"
+        VALUES += ",'"+email+"'"
+        FIELDS += ",`qrz_email`"
         VALUES += ",'"+email+"'"
     if licclass != '':
         sql += ", `class`='"+licclass+"'"
