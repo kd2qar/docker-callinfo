@@ -33,6 +33,7 @@ def get_sql(result):
     call = get_key('call',result).lower()
     fname = get_key('fname',result)
     name = get_key('name', result)
+    addr1 = get_key('addr1',result)
     addr2 = get_key('addr2',result)
     grid = get_key('grid',result)
     state = get_key('state',result)
@@ -43,11 +44,13 @@ def get_sql(result):
     land = get_key('land',result)
 
     print("/*");
-    print(result);
+    #print(result);
     print("call    = "+call);
     print("fname   = "+fname);
     print("name    = "+name);
     print("nickname= "+nickname);
+    print("addr1   = "+addr1);
+    print("addr2   = "+addr2);
     print("state   = "+state);
     print("country = "+country);
     print("class   = "+licclass);
