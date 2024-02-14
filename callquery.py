@@ -35,6 +35,8 @@ def get_sql(result):
     name = get_key('name', result)
     addr1 = get_key('addr1',result)
     addr2 = get_key('addr2',result)
+    zipcode = get_key('zip',result)
+    county  = get_key('county',result)
     grid = get_key('grid',result)
     state = get_key('state',result)
     country = get_key('country',result)
@@ -42,6 +44,10 @@ def get_sql(result):
     nickname = get_key('nickname',result)
     licclass = get_key('class',result)
     land = get_key('land',result)
+    lat  = get_key('lat',result)
+    lon  = get_key('lon',result)
+    dxcc = get_key('dxcc',result)
+    born = get_key('born',result)
 
     print("/*");
     #print(result);
@@ -51,11 +57,18 @@ def get_sql(result):
     print("nickname= "+nickname);
     print("addr1   = "+addr1);
     print("addr2   = "+addr2);
+    print("zip     = "+zipcode);
     print("state   = "+state);
     print("country = "+country);
+    print("county  = "+county);
+    print("dxcc    = "+dxcc);
     print("class   = "+licclass);
     print("land    = "+land);
     print("email   = "+email);
+    print("grid    = "+grid);
+    print("lat     = "+lat);
+    print("lon     = "+lon);
+    print("born    = "+born);
     #print("*/");
     sql =""
     sql += "DELIMITER $$ \n"
@@ -128,6 +141,7 @@ for cal in sys.argv[1:]:
     try:
         print("/*")
         result = qrz.callsign(cal)
+        print(result)
     except:
         print('oops')
         print("*/")
