@@ -83,44 +83,70 @@ def get_sql(result):
     #    sql += "`fullname`='"+fname+" "+name+"'"
     #    FIELDS += ", `fullname`"
     #    VALUES +=  ",'"+fname+" "+name+"'"
+    comma = False
     if addr2 != '':
         sql += "`addr2`='"+addr2+"'"
         FIELDS += ",`addr2`"
         VALUES +=  ",'"+addr2+"'"
+        comma = True
     if grid != '':
-        sql += ",`grid`='"+grid+"'"
+        if comma:
+            sql+= ","
+        sql += "`grid`='"+grid+"'"
         FIELDS +=  ",`grid`"
         VALUES += ",'"+grid+"'"
+        comma = True
     if state != '':
-        sql += ",`state`='"+state+"'"
+        if comma:
+            sql += ","
+        sql += "`state`='"+state+"'"
         FIELDS += ",`state`"
         VALUES += ",'"+state+"'"
+        comma = True
     if country != '':
-        sql += ",`country`='"+country+"'"
+        if comma:
+            sql+= ","
+        sql += "`country`='"+country+"'"
         FIELDS += ",`country`"
         VALUES += ",'"+country+"'"
+        comma = True
     if fname != '':
-        sql += ",`firstname`='"+fname+"'"
+        if comma:
+            sql += ","
+        sql += "`firstname`='"+fname+"'"
         FIELDS += ",`firstname`"
         VALUES += ",'"+fname+"'"
+        comma = True
     if name != '':
-        sql += ",`lastname`='"+name+"'"
+        if comma:
+            sql += ","
+        sql += "`lastname`='"+name+"'"
         FIELDS += ",`lastname`"
         VALUES += ",'"+name+"'"
+        comma = True
     if email != '':
-        sql += ",`qrz_email`='"+email+"'"
+        if comma:
+            sql += ","
+        sql += "`qrz_email`='"+email+"'"
         FIELDS += ",`email`"
         VALUES += ",'"+email+"'"
         FIELDS += ",`qrz_email`"
         VALUES += ",'"+email+"'"
+        comma = True
     if licclass != '':
-        sql += ", `class`='"+licclass+"'"
+        if comma:
+            sql += ","
+        sql += "`class`='"+licclass+"'"
         FIELDS += ",`class`"
         VALUES += ",'"+licclass+"'"
+        comma = True
     if nickname != '':
-        sql += ", `nickname`='"+nickname+"'"
+        if comma:
+            sql += ","
+        sql += "`nickname`='"+nickname+"'"
         FIELDS += ",`nickname`"
         VALUES += ",'"+nickname+"'"
+        comma = True
  
     
     sql += "     WHERE `callsign`='"+call+"';\n"
@@ -142,6 +168,7 @@ for cal in sys.argv[1:]:
         print("/*")
         result = qrz.callsign(cal)
         print(result)
+        print("*/")
     except:
         print('oops')
         print("*/")
