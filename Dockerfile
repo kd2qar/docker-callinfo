@@ -11,5 +11,6 @@ RUN apt-get update  \
 WORKDIR /root
 COPY callquery.py /root/
 COPY qrz_query.py /root/
+COPY hamqth_query.py /root/
 COPY settings.cfg /root/
 
