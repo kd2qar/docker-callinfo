@@ -33,7 +33,7 @@ def get_key(keyname,query_results):
         return value
     return '';
 
-def get_sql(result,table):
+def get_sql(result,query_call, table):
     call = get_key('call',result).lower()
     if call == '':
         call = get_key('callsign',result).lower()
@@ -139,12 +139,20 @@ def get_sql(result,table):
     #print("*/");
     sql =""
     sql += "DELIMITER $$ \n"
-    sql += "IF (SELECT callsign FROM "+table+" WHERE callsign = '"+call+"') = '"+call+"' THEN \n"
+    if table == 'fieldday.qrzdata':
+        sql += "IF (SELECT fdcall FROM "+table+" WHERE fdcall = '"+query_call+"') = '"+query_call+"' THEN \n"
+    else:
+        sql += "IF (SELECT callsign FROM "+table+" WHERE callsign = '"+call+"') = '"+call+"' THEN \n"
     sql += "     UPDATE "+table+" "
     sql += "SET "
 
     FIELDS = "`callsign`"
     VALUES = "'"+call+"'"
+
+    if table == 'fieldday.qrzdata':
+        FIELDS = "`fdcall`, "+FIELDS
+        VALUES = "'"+query_call+"', "+VALUES
+        sql += "`callsign`='"+call+"',"
 
     #if fname != '' and name != '':
     #    sql += "`fullname`='"+fname+" "+name+"'"
@@ -215,8 +223,11 @@ def get_sql(result,table):
         VALUES += ",'"+nickname+"'"
         comma = True
  
-    
-    sql += "     WHERE `callsign`='"+call+"';\n"
+    if table == 'fieldday.qrzdata':
+        sql += "     WHERE `fdcall`='"+query_call+"';\n"
+    else:
+        sql += "     WHERE `callsign`='"+call+"';\n"
+
     sql += " ELSE \n"
     sql += "     INSERT INTO "+table+" ("+FIELDS+") VALUES("+VALUES+") ; \n"
     sql += "END IF $$ \n"
@@ -262,7 +273,7 @@ for cal in sys.argv[1:]:
             print(ex1)
             print("*/")
         else:
-            sql = get_sql(result,table)
+            sql = get_sql(result,cal, table)
             print("*/")
             print(sql)
     else:
@@ -271,7 +282,7 @@ for cal in sys.argv[1:]:
         #print_keys(['country'], result)
         #print_keys(['grid','email'], result)
 
-        sql = get_sql(result,table)
+        sql = get_sql(result,cal, table)
         print("*/")
         print(sql)
     
