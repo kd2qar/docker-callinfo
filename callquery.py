@@ -195,9 +195,10 @@ def get_sql(result,query_call, table):
     if name != '':
         if comma:
             sql += ","
-        sql += "`lastname`='"+name+"'"
+        nAmE = name.replace("'","''")
+        sql += "`lastname`='"+nAmE+"'"
         FIELDS += ",`lastname`"
-        VALUES += ",'"+name+"'"
+        VALUES += ",'"+nAmE+"'"
         comma = True
     if email != '':
         if comma:
@@ -216,11 +217,12 @@ def get_sql(result,query_call, table):
         VALUES += ",'"+licclass+"'"
         comma = True
     if nickname != '':
+        nn = nickname.replace("'","''")
         if comma:
             sql += ","
-        sql += "`nickname`='"+nickname+"'"
+        sql += "`nickname`='"+nn+"'"
         FIELDS += ",`nickname`"
-        VALUES += ",'"+nickname+"'"
+        VALUES += ",'"+nn+"'"
         comma = True
  
     if table == 'fieldday.qrzdata':
