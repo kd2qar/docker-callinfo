@@ -224,6 +224,64 @@ def get_sql(result,query_call, table):
         FIELDS += ",`nickname`"
         VALUES += ",'"+nn+"'"
         comma = True
+    if lat != '':
+        if comma:
+            sql +=","
+        sql += "`lattitude`='"+lat+"'"
+        FIELDS += ",`lattitude`"
+        VALUES += ",'"+lat+"'"
+        comma = True
+    if lon != '':
+        if comma:
+            sql +=","
+        sql += "`longitude`='"+lon+"'"
+        FIELDS += ", `longitude`"
+        VALUES += ",'"+lon+"'"
+        comma = True
+    if aliases != '':
+        Aliases = aliases.replace("'","''")
+        if comma:
+            sql+=","
+        sql += "`aliases`='"+Aliases+"'"
+        FIELDS += ", `aliases`"
+        VALUES += ",'"+Aliases+"'"
+        comma = True
+    if addr1 != '':
+        Addr1 = addr1.replace("'","''")
+        if comma:
+            sql += ","
+        sql += "`addr1`='"+Addr1+"'"
+        FIELDS += ", `addr1`"
+        VALUES += ",'"+Addr1+"'"
+        comma = True
+    if continent != '':
+        if comma:
+            sql += ","
+        sql += "`continent`='"+continent+"'"
+        FIELDS += ", `continent`"
+        VALUES += ",'"+continent+"'"
+        comma = True
+    if zipcode != '':
+        if comma:
+            sql += ","
+        sql += "`postalcode`='"+zipcode+"'"
+        FIELDS += ",`postalcode`"
+        VALUES += ",'"+zipcode+"'"
+        comma = True
+    if ituzone != '':
+        if comma:
+            sql += ","
+        sql += "`ituzone`="+ituzone
+        FIELDS += ",`ituzone`"
+        VALUES += ","+ituzone
+        comma = True
+    if cqzone != '':
+        if comma:
+            sql += ","
+        sql += "`cqzone`="+cqzone
+        FIELDS += ",`cqzone`"
+        VALUES += ","+cqzone
+        comma = True
  
     if table == 'fieldday.qrzdata':
         sql += "     WHERE `fdcall`='"+query_call+"';\n"
