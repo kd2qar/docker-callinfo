@@ -13,6 +13,8 @@ run:
 shell: build
 	docker run  -it --rm --name ${NAME} ${TAG} /bin/bash
 
+testnosql: build
+	./callinfo --nosql w1aw
 test: build
 	./callinfo w1aw
 	echo "delete FROM rcforb.rawny_details where callsign = 'w1aw';delete FROM fieldday.qrzdata where fdcall = 'w1aw';" | mariadb

@@ -13,6 +13,8 @@ from hamqth_query import HamQTH
 print("/*") 
 urllib3.disable_warnings();
 
+nosql=False
+
 def print_keys(key_names, query_result):
     """
     Prints results and does not throw exception on queries
@@ -104,10 +106,12 @@ def get_sql(result,query_call, table):
     qsldirect = get_key('mqsl',result)
     if qsldirect == '':
         qsldirect = get_key('qsldirect',result)
+    trustee = get_key('trustee',result)
 
     print("/*")
     #print(result)
     print("call      = "+call)
+    print("trustee   = "+trustee)
     print("aliases   = "+aliases)
     print("fname     = "+fname)
     print("name      = "+name)
@@ -137,6 +141,8 @@ def get_sql(result,query_call, table):
     print("qsl_via   = "+qsl_via);
     print("qsldirect = "+qsldirect);
     #print("*/");
+    if nosql:
+        return ""
     sql =""
     sql += "DELIMITER $$ \n"
     if table == 'fieldday.qrzdata':
@@ -354,12 +360,9 @@ for cal in sys.argv[1:]:
         #print_keys(['addr2', 'state'], result)
         #print_keys(['country'], result)
         #print_keys(['grid','email'], result)
-        if  nosql == False:
-            sql = get_sql(result,cal, table)
-            print("*/")
-            print(sql)
-        else:
-            print("*/")
+        sql = get_sql(result,cal, table)
+        print("*/")
+        print(sql)
     
     print('')
 
