@@ -282,6 +282,13 @@ def get_sql(result,query_call, table):
         FIELDS += ",`cqzone`"
         VALUES += ","+cqzone
         comma = True
+    if dxcc != '':
+        if comma:
+            sql += ","
+        sql += "`dxcc`="+dxcc
+        FIELDS += ",`dxcc`"
+        VALUES += ","+dxcc
+        comma=True
  
     if table == 'fieldday.qrzdata':
         sql += "     WHERE `fdcall`='"+query_call+"';\n"
@@ -302,12 +309,18 @@ cal = 'kd2qar'
 print(sys.argv[1:])
 print ("*/")
 
+nosql=False
+
 table = "rcforb.rawny_details"
 gettable = False
 for cal in sys.argv[1:]:
     if cal == '-t' or cal == '--table':
         gettable = True
         print("/* get table on next round */")
+        continue
+    if cal == '-n' or cal == '--nosql':
+        nosql=True
+        print("/* NO SQL OUTPUT WILL BE GENERATED */")
         continue
     if gettable == True:
         print("/* new table changed from "+table+" to "+cal+" */")
@@ -341,10 +354,12 @@ for cal in sys.argv[1:]:
         #print_keys(['addr2', 'state'], result)
         #print_keys(['country'], result)
         #print_keys(['grid','email'], result)
-
-        sql = get_sql(result,cal, table)
-        print("*/")
-        print(sql)
+        if  nosql == False:
+            sql = get_sql(result,cal, table)
+            print("*/")
+            print(sql)
+        else:
+            print("*/")
     
     print('')
 

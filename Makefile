@@ -5,8 +5,6 @@ NAME=callquery
 all: build
 
 build:
-#	cp /data/src/python/getcall/*.cfg .
-#	cp /data/src/python/getcall/*.py .
 	docker build --rm  --tag ${TAG} .
 
 run:
@@ -14,4 +12,12 @@ run:
 
 shell: build
 	docker run  -it --rm --name ${NAME} ${TAG} /bin/bash
+
+test: build
+	./callinfo w1aw
+	echo "delete FROM rcforb.rawny_details where callsign = 'w1aw';delete FROM fieldday.qrzdata where fdcall = 'w1aw';" | mariadb
+	./callinfo w1aw | mariadb
+	./callinfo w1aw -t fieldday.qrzdata | mariadb
+	./callinfo w1aw | mariadb
+	./callinfo w1aw -t fieldday.qrzdata | mariadb
 
