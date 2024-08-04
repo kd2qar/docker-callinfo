@@ -19,7 +19,12 @@ test: build
 	./callinfo w1aw
 	echo "delete FROM rcforb.rawny_details where callsign = 'w1aw';delete FROM fieldday.qrzdata where fdcall = 'w1aw';" | mariadb
 	./callinfo w1aw | mariadb
-	./callinfo w1aw -t fieldday.qrzdata | mariadb
+	./callinfo -t fieldday.qrzdata w1aw | mariadb
 	./callinfo w1aw | mariadb
-	./callinfo w1aw -t fieldday.qrzdata | mariadb
-
+	./callinfo -t fieldday.qrzdata w1aw | mariadb
+	echo "delete FROM rcforb.rawny_details where callsign = 'w1aw';delete FROM fieldday.qrzdata where fdcall = 'w1aw';" | mariadb
+	./callinfo --noqrz w1aw
+	./callinfo --noqrz -t fieldday.qrzdata w1aw | mariadb
+	./callinfo --noqrz | mariadb
+	./callinfo --noqrz -t fieldday.qrzdata w1aw | mariadb
+	./callinfo -t test.temptable_calldata_temptable w1aw | mariadb

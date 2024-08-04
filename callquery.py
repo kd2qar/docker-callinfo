@@ -8,11 +8,13 @@ import qrz_query
 import hamqth_query
 import certifi
 import urllib3
+from pathlib import Path
 from qrz_query import QRZ
 from hamqth_query import HamQTH
 print("/*") 
 urllib3.disable_warnings();
-
+useHamqth=True
+useQrz=True
 nosql=False
 
 def print_keys(key_names, query_result):
@@ -48,9 +50,9 @@ def get_sql(result,query_call, table):
     addr1 = get_key('addr1',result)
     if addr1 == '':
         addr1 = get_key('adr_street1',result)
-    addr2 = get_key('addr2',result)
-    if addr2 == '':
-        addr2 = get_key('adr_city',result)
+    city = get_key('addr2',result)
+    if city == '':
+        city = get_key('adr_city',result)
     zipcode = get_key('zip',result)
     if zipcode == '':
         zipcode = get_key('adr_zip',result)
@@ -92,6 +94,11 @@ def get_sql(result,query_call, table):
     if utcoffset == '':
          utcoffset = get_key('utc_offset',result)
     continent = get_key('continent',result)
+
+    qsldirect = get_key('mqsl',result)
+    if qsldirect == '':
+        qsldirect = get_key('qsldirect',result)
+    buro = get_key('qsl',result)
     lotw = get_key('lotw',result)
     eqsl = get_key('eqsl',result)
     cqzone = get_key('cqzone',result) 
@@ -116,8 +123,8 @@ def get_sql(result,query_call, table):
     print("fname     = "+fname)
     print("name      = "+name)
     print("nickname  = "+nickname)
-    print("addr1     = "+addr1);
-    print("addr2     = "+addr2)
+    print("addr1     = "+addr1)
+    print("city      = "+city)
     print("zip       = "+zipcode)
     print("state     = "+state)
     print("country   = "+country)
@@ -126,24 +133,28 @@ def get_sql(result,query_call, table):
     print("timezone  = "+timezone)
     print("utcoffset = "+utcoffset)
     print("continent = "+continent)
-    print("dxcc      = "+dxcc);
-    print("class     = "+licclass);
-    print("land      = "+land);
-    print("email     = "+email);
-    print("grid      = "+grid);
-    print("lat       = "+lat);
-    print("lon       = "+lon);
-    print("born      = "+born);
-    print("lotw      = "+lotw);
-    print("eqsl      = "+eqsl);
-    print("ituzone   = "+ituzone);
-    print("cqzone    = "+cqzone);
-    print("qsl_via   = "+qsl_via);
-    print("qsldirect = "+qsldirect);
+    print("dxcc      = "+dxcc)
+    print("class     = "+licclass)
+    print("land      = "+land)
+    print("email     = "+email)
+    print("grid      = "+grid)
+    print("lat       = "+lat)
+    print("lon       = "+lon)
+    print("born      = "+born)
+    print("direct    = "+qsldirect)
+    print("buro      = "+buro)
+    print("lotw      = "+lotw)
+    print("eqsl      = "+eqsl)
+    print("ituzone   = "+ituzone)
+    print("cqzone    = "+cqzone)
+    print("qsl_via   = "+qsl_via)
     #print("*/");
     if nosql:
         return ""
     sql =""
+    if table == 'test.temptable_calldata_temptable' or table == '`test`.`temptable_calldata_temptable`' :
+        mtempTableCreate = Path('/root/temptable.sql').read_text()
+        sql = tempTableCreate
     sql += "DELIMITER $$ \n"
     if table == 'fieldday.qrzdata':
         sql += "IF (SELECT fdcall FROM "+table+" WHERE fdcall = '"+query_call+"') = '"+query_call+"' THEN \n"
@@ -165,10 +176,10 @@ def get_sql(result,query_call, table):
     #    FIELDS += ", `fullname`"
     #    VALUES +=  ",'"+fname+" "+name+"'"
     comma = False
-    if addr2 != '':
-        sql += "`addr2`='"+addr2+"'"
-        FIELDS += ",`addr2`"
-        VALUES +=  ",'"+addr2+"'"
+    if city != '':
+        sql += "`city`='"+city+"'"
+        FIELDS += ",`city`"
+        VALUES +=  ",'"+city+"'"
         comma = True
     if grid != '':
         if comma:
@@ -295,6 +306,13 @@ def get_sql(result,query_call, table):
         FIELDS += ",`dxcc`"
         VALUES += ","+dxcc
         comma=True
+    if trustee != '':
+        if comma:
+            sql += ","
+        sql += "`trustee`='"+trustee+"'"
+        FIELDS += ",`trustee`"
+        VALUES +=",'"+trustee+"'"
+        comma = True
  
     if table == 'fieldday.qrzdata':
         sql += "     WHERE `fdcall`='"+query_call+"';\n"
@@ -307,6 +325,18 @@ def get_sql(result,query_call, table):
     sql += "DELIMITER ; "
     return sql
 
+def get_sql2(result,query_call, table, temptable):
+    sql =""
+    tempTableCreate = Path('/root/temptable.sql').read_text()
+    sql += tempTableCreate
+    sql += get_sql(result,query_call,temptable)
+    #print("*/");
+    if nosql:
+        return ""
+    return sql
+
+# ****************************************************************************
+
 
 qrz = QRZ('./settings.cfg')
 hamqth = HamQTH('./settings.cfg')
@@ -316,10 +346,22 @@ print(sys.argv[1:])
 print ("*/")
 
 nosql=False
+useQrz = True
+useHamqth = True
+
 
 table = "rcforb.rawny_details"
 gettable = False
+temptable = '`test`.`temptable_calldata_temptable`'
 for cal in sys.argv[1:]:
+    if cal == '-h' or cal == '--help' or cal == '-?':
+        print("callinfo [--help] [-n|--nosql] [(-t|--table) <database>.<table> ]  <callsign1 callsign2 ...>")
+        print("\t --help:  Print this help and exit")
+        print("\t --nosql: Do not output the sql statements")
+        print("\t --table: Specify the database table to be used for the sql output")
+        print("\t --qrz:   Only query data from QRZ.com")
+        print("\t --hamqth: Only query data from hamqth.com")
+        exit(0)
     if cal == '-t' or cal == '--table':
         gettable = True
         print("/* get table on next round */")
@@ -327,6 +369,12 @@ for cal in sys.argv[1:]:
     if cal == '-n' or cal == '--nosql':
         nosql=True
         print("/* NO SQL OUTPUT WILL BE GENERATED */")
+        continue
+    if cal == '--noqrz':
+        useQrz = False
+        continue
+    if cal == '--nohamqth':
+        useHamqth = False
         continue
     if gettable == True:
         print("/* new table changed from "+table+" to "+cal+" */")
@@ -336,6 +384,8 @@ for cal in sys.argv[1:]:
     try:
         print("/*")
         #raise Exception("FAKE IT")
+        if not useQrz:
+            raise  Exception("Skip QRZ")
         result = qrz.callsign(cal)
         print(result)
         print("*/")
@@ -360,7 +410,9 @@ for cal in sys.argv[1:]:
         #print_keys(['addr2', 'state'], result)
         #print_keys(['country'], result)
         #print_keys(['grid','email'], result)
-        sql = get_sql(result,cal, table)
+        sql = ""
+        #sql = get_sql2(result, cal, table, temptable)
+        sql += get_sql(result,cal,table)
         print("*/")
         print(sql)
     

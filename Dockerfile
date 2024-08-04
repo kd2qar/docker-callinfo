@@ -6,6 +6,7 @@ RUN apt-get update  \
      && rm -rf /var/lib/apt/lists*
 WORKDIR /root
 COPY callquery.py /root/
+COPY temptable.sql /root/
 COPY qrz_query.py /root/
 COPY hamqth_query.py /root/
 COPY settings.cfg /root/
