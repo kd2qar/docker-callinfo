@@ -1,4 +1,7 @@
-FROM debian:bookworm-slim as root
+#FROM debian:bookworm-slim as root
+FROM debian:stable-slim
+
+MAINTAINER Mark Vincett <kd2qar@gmail.com>
 
 RUN apt-get update  \
      && apt-get -y upgrade  \
