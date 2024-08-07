@@ -18,6 +18,8 @@ urllib3.disable_warnings()
 useHamqth=True
 useQrz=True
 nosql=False
+callquery = CallQuery('./settings.cfg')
+
 
 def print_keys(key_names, query_result):
     """
@@ -30,174 +32,70 @@ def print_keys(key_names, query_result):
             info += query_result[key_name] + " "
     print(info)
 
-def get_key(keyname,query_results):
+def get_key(keyname,query_result):
+    """
+    Returns empty string for missing result
+    """
     value = ""
-    if keyname in query_results:
-        value = query_results[keyname]
+    if keyname in query_result:
+        value = query_result[keyname]
         if value is None:
             value = ''
         return value
-    return '';
+    return ''
 
-def get_sql(result,query_call, table):
-    call = get_key('call',result).lower()
-    if call == '':
-        call = get_key('callsign',result).lower()
+def get_sql(result, table):
+    querycall = get_key('querycall',result)
+    call = get_key('callsign',result)
     fname = get_key('firstname',result)
-    if fname == '':
-        fname = get_key('fname',result)
-    if fname == '':
-        fname = get_key('nick',result)
     name = get_key('lastname', result)
-    if name == '':
-        name = get_key('name', result)
-    if name == '':
-        name = get_key('adr_name',result)
-    addr1 = get_key('street1',result)
-    if addr1 == '':
-        addr1 = get_key('addr1',result)
-    if addr1 == '':
-        addr1 = get_key('adr_street1',result)
+    street1 = get_key('street1',result)
     city = get_key('city',result)
-    if city == '':
-        city = get_key('addr2',result)
-    if city == '':
-        city = get_key('adr_city',result)
-    zipcode = get_key('zipcode',result)
-    if zipcode =='':
-        zipcode = get_key('zip',result)
-    if zipcode == '':
-        zipcode = get_key('adr_zip',result)
+    zipcode = get_key('postalcode',result)
     county  = get_key('county',result)
-    if county == '':
-        county = get_key('us_county',result)
     grid = get_key('grid',result)
     state = get_key('state',result)
-    if state == '':
-        state = get_key('us_state',result)
     country = get_key('country',result)
-    if country == '' or get_key('adr_country',result) != '':
-        country = get_key('adr_country',result)
     email = get_key('email',result)
     nickname = get_key('nickname',result)
-    if nickname == '':
-        nickname = get_key('nick',result)
     licclass = get_key('licclass',result)
-    if licclass == '':
-        licclass = get_key('class',result)
     land = get_key('land',result)
-    if land == '':
-        land = get_key('country',result)
-    lat  = get_key('lat',result)
-    if lat == '':
-        lat = get_key('latitude',result)
-    lon  = get_key('lon',result)
-    if lon == '':
-        lon = get_key('longitude',result)
+    lat = get_key('lattitude',result)
+    lon = get_key('longitude',result)
     dxcc = get_key('dxcc',result)
-    if dxcc == '':
-        dxcc = get_key('adif',result)
-    born = get_key('born',result)
-    if born == '':
-        born = get_key('birth_year',result)
-
+    born = get_key('birthyear',result)
     aliases = get_key('aliases',result)
     areacode = get_key('areacode',result)
-    if areacode == '':
-        areacode= get_key('AreaCode',result)
     timezone = get_key('timezone',result)
-    if timezone == '':
-        timezone= get_key('TimeZone',result)
     utcoffset = get_key('utcoffset',result)
-    if utcoffset == '':
-        utcoffset= get_key('GMTOffset',result)
-    if utcoffset == '':
-         utcoffset = get_key('utc_offset',result)
     continent = get_key('continent',result)
-
     qsldirect = get_key('qsldirect',result)
-    if qsldirect == '':
-        qsldirect = get_key('mqsl',result)
-    if qsldirect == '':
-        qsldirect = get_key('qsldirect',result)
-    
     buro = get_key('buro',result)
-    if buro == '':
-        buro = get_key('qsl',result)
     lotw = get_key('lotw',result)
     eqsl = get_key('eqsl',result)
     cqzone = get_key('cqzone',result) 
-    if cqzone == '':
-        cqzone = get_key('cq',result)
     ituzone = get_key('ituzone',result)
-    if ituzone == '':
-        ituzone = get_key('itu',result)
     qsl_via = get_key('qslmgr',result)
-    if qsl_via == '':
-        qsl_via = get_key('qsl_via',result)
-    qsldirect = get_key('mqsl',result)
-    if qsldirect == '':
-        qsldirect = get_key('qsldirect',result)
     trustee = get_key('trustee',result)
-    
     efdate  = get_key('efdate',result)
     expdate = get_key('expdate',result)
     biodate = get_key('biodate',result)
     moddate = get_key('moddate',result)
-
     fips    = get_key('fips',result)
     ccode   = get_key('ccode',result)
 
-    print("/*")
-    #print(result)
-    print("call      = "+call)
-    print("trustee   = "+trustee)
-    print("aliases   = "+aliases)
-    print("fname     = "+fname)
-    print("name      = "+name)
-    print("nickname  = "+nickname)
-    print("efdate    = "+efdate)
-    print("expdate   = "+expdate)
-    print("biodate   = "+biodate)
-    print("moddate   = "+moddate)
-    print("fips      = "+fips)
-    print("addr1     = "+addr1)
-    print("city      = "+city)
-    print("zip       = "+zipcode)
-    print("state     = "+state)
-    print("country   = "+country)
-    print("county    = "+county)
-    print("ccode     = "+ccode)
-    print("areacode  = "+areacode)
-    print("timezone  = "+timezone)
-    print("utcoffset = "+utcoffset)
-    print("continent = "+continent)
-    print("dxcc      = "+dxcc)
-    print("class     = "+licclass)
-    print("land      = "+land)
-    print("email     = "+email)
-    print("grid      = "+grid)
-    print("lat       = "+lat)
-    print("lon       = "+lon)
-    print("fips      = "+fips)
-    print("born      = "+born)
-    print("direct    = "+qsldirect)
-    print("buro      = "+buro)
-    print("lotw      = "+lotw)
-    print("eqsl      = "+eqsl)
-    print("ituzone   = "+ituzone)
-    print("cqzone    = "+cqzone)
-    print("qsl_via   = "+qsl_via)
-    #print("*/");
+    #print("/*")
+    #callquery.printResult(result)
+    #print("*/")
     if nosql:
         return ""
     sql =""
     if table == 'test.temptable_calldata_temptable' or table == '`test`.`temptable_calldata_temptable`' :
-        mtempTableCreate = Path('/root/temptable.sql').read_text()
+        tempTableCreate = Path('/root/temptable.sql').read_text()
         sql = tempTableCreate
     sql += "DELIMITER $$ \n"
     if table == 'fieldday.qrzdata':
-        sql += "IF (SELECT fdcall FROM "+table+" WHERE fdcall = '"+query_call+"') = '"+query_call+"' THEN \n"
+        sql += "IF (SELECT fdcall FROM "+table+" WHERE fdcall = '"+querycall+"') = '"+querycall+"' THEN \n"
     else:
         sql += "IF (SELECT callsign FROM "+table+" WHERE callsign = '"+call+"') = '"+call+"' THEN \n"
     sql += "     UPDATE "+table+" "
@@ -252,10 +150,10 @@ def get_sql(result,query_call, table):
     if name != '':
         if comma:
             sql += ","
-        nAmE = name.replace("'","''")
-        sql += "`lastname`='"+nAmE+"'"
+        lastname = name.replace("'","''")
+        sql += "`lastname`='"+lastname+"'"
         FIELDS += ",`lastname`"
-        VALUES += ",'"+nAmE+"'"
+        VALUES += ",'"+lastname+"'"
         comma = True
     if email != '':
         if comma:
@@ -303,13 +201,13 @@ def get_sql(result,query_call, table):
         FIELDS += ", `aliases`"
         VALUES += ",'"+Aliases+"'"
         comma = True
-    if addr1 != '':
-        Addr1 = addr1.replace("'","''")
+    if street1 != '':
+        street1 = street1.replace("'","''")
         if comma:
             sql += ","
-        sql += "`addr1`='"+Addr1+"'"
+        sql += "`addr1`='"+street1+"'"
         FIELDS += ", `addr1`"
-        VALUES += ",'"+Addr1+"'"
+        VALUES += ",'"+street1+"'"
         comma = True
     if continent != '':
         if comma:
@@ -429,55 +327,19 @@ for cal in sys.argv[1:]:
     
 
 for cal in callsigns:
-    print("-- "+cal)
+    print("-- "+cal+" --")
     if True:
-        callquery = CallQuery('./settings.cfg')
+        #callquery = CallQuery('./settings.cfg')
         result = callquery.callsign(cal)
-        print("/*")
-        print(result)
-        print("*/")       
-        sql = ""
-        #sql = get_sql2(result, cal, table, temptable)
-        sql += get_sql(result,cal,table)
-        print("*/")
-        print(sql)
+        if not nosql: print("/*")
+        #print(result)
+        callquery.printResult(result)
+        if not nosql: print("*/")
+        if not nosql:
+            sql = ""
+            #sql = get_sql2(result, cal, table, temptable)
+            sql += get_sql(result,table)
+            print(sql)
 
         print('')
-        continue
-    try:
-        print("/*")
-        #raise Exception("FAKE IT")
-        if not useQrz:
-            raise  Exception("Skip QRZ")
-        result = qrz.callsign(cal)
-        print(result)
-        print("*/")
-    except Exception as ex:
-        try:
-            print('oops QRZ')
-            print(ex)
-            result = hamqth.callsign(cal)
-            print(result)
-            print("*/")
-        except Exception as ex1:
-            #print(ex)
-            print('oops HamQTH')
-            print(ex1)
-            print("*/")
-        else:
-            sql = get_sql(result,cal, table)
-            print("*/")
-            print(sql)
-    else:
-        #print_keys(['fname', 'name'], result)
-        #print_keys(['addr2', 'state'], result)
-        #print_keys(['country'], result)
-        #print_keys(['grid','email'], result)
-        sql = ""
-        #sql = get_sql2(result, cal, table, temptable)
-        sql += get_sql(result,cal,table)
-        print("*/")
-        print(sql)
-
-    print('')
 

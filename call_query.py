@@ -66,25 +66,33 @@ class CallQuery(object):
                 print('*/')
             else:
                 print('/* using hamqth */')
-        return self.getresult(result)
+        myresult = self.getresult(callsign,result)
+        return myresult
 
-    def getresult(self,result):
+    def getresult(self,query_call,result):
         myresult = dict()
 
         call = self.get_key('call',result).lower()
         if call == '':
             call = self.get_key('callsign',result).lower()
-        myresult['call'] = call
+        myresult['callsign'] = call
+
+        myresult['querycall'] = query_call.lower()
 
         fname = self.get_key('fname',result)
         if fname == '':
             fname = self.get_key('nick',result)
-        myresult['firstname'] = fname
+        myresult['firstname'] = fname.title()
 
         name = self.get_key('name', result)
         if name == '':
             name = self.get_key('adr_name',result)
-        myresult['lastname'] = name
+        myresult['lastname'] = name.title()
+
+        nickname = self.get_key('nickname',result)
+        if nickname == '':
+            nickname = self.get_key('nick',result)
+        myresult['nickname']=nickname.title()
 
         addr1 = self.get_key('addr1',result)
         if addr1 == '':
@@ -99,7 +107,7 @@ class CallQuery(object):
         zipcode = self.get_key('zip',result)
         if zipcode == '':
             zipcode = self.get_key('adr_zip',result)
-        myresult['zipcode']=zipcode
+        myresult['postalcode']=zipcode
 
         county  =self.get_key('county',result)
         if county == '':
@@ -121,11 +129,6 @@ class CallQuery(object):
 
         email = self.get_key('email',result)
         myresult['email']=email
-
-        nickname = self.get_key('nickname',result)
-        if nickname == '':
-            nickname = self.get_key('nick',result)
-        myresult['nickname']=nickname
 
         licclass = self.get_key('class',result)
         myresult['licclass']=licclass
@@ -153,7 +156,7 @@ class CallQuery(object):
         born = self.get_key('born',result)
         if born == '':
             born = self.get_key('birth_year',result)
-        myresult['born']=born
+        myresult['birthyear']=born
 
         aliases = self.get_key('aliases',result)
         myresult['aliases']=aliases
@@ -221,17 +224,11 @@ class CallQuery(object):
 
         ccode   = self.get_key('ccode',result)
         myresult['ccode']=ccode
-        self.printResult(result)
-        self.printResult(myresult)
         return myresult
     
     def printResult(self,result:dict):
-        
-        print("/*")
-        print(result)
-        print("")
+        """
+        print formatted results
+        """        
         for x in result:
             print(x.ljust(10)+"= "+result[x])
-            
-        print('*/')
-
