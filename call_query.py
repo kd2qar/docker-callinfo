@@ -89,10 +89,11 @@ class CallQuery(object):
             fname = self.get_key('nick',result)
         myresult['firstname'] = fname.title()
 
-        name = self.get_key('name', result)
-        if name == '':
-            name = self.get_key('adr_name',result)
-        myresult['lastname'] = name.title()
+        lastname = self.get_key('name', result)
+        if lastname == '':
+            lastname = self.get_key('adr_name',result)
+        if lastname.isupper(): lastname = lastname.title() # only title names that are only uppercase. Assume mixed case is as intended
+        myresult['lastname'] = lastname
 
         nickname = self.get_key('nickname',result)
         if nickname == '':
