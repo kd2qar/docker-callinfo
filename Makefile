@@ -15,8 +15,11 @@ shell: build
 
 testnosql: build
 	./callinfo --nosql w1aw
-test: build
+test1: build
 	./callinfo w1aw
+test2: build
+	./callinfo NJ1Q
+test: build test1
 	echo "delete FROM rcforb.rawny_details where callsign = 'w1aw';delete FROM fieldday.qrzdata where fdcall = 'w1aw';" | mariadb
 	./callinfo w1aw | mariadb
 	./callinfo -t fieldday.qrzdata w1aw | mariadb

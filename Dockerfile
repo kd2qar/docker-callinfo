@@ -11,6 +11,7 @@ WORKDIR /root
 COPY callquery.py /root/
 COPY temptable.sql /root/
 COPY qrz_query.py /root/
+COPY call_query.py /root/
 COPY hamqth_query.py /root/
 COPY settings.cfg /root/
 RUN chmod +x /root/callquery.py

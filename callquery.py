@@ -11,8 +11,10 @@ import urllib3
 from pathlib import Path
 from qrz_query import QRZ
 from hamqth_query import HamQTH
+from call_query import CallQuery
+
 print("/*") 
-urllib3.disable_warnings();
+urllib3.disable_warnings()
 useHamqth=True
 useQrz=True
 nosql=False
@@ -41,19 +43,29 @@ def get_sql(result,query_call, table):
     call = get_key('call',result).lower()
     if call == '':
         call = get_key('callsign',result).lower()
-    fname = get_key('fname',result)
+    fname = get_key('firstname',result)
+    if fname == '':
+        fname = get_key('fname',result)
     if fname == '':
         fname = get_key('nick',result)
-    name = get_key('name', result)
+    name = get_key('lastname', result)
+    if name == '':
+        name = get_key('name', result)
     if name == '':
         name = get_key('adr_name',result)
-    addr1 = get_key('addr1',result)
+    addr1 = get_key('street1',result)
+    if addr1 == '':
+        addr1 = get_key('addr1',result)
     if addr1 == '':
         addr1 = get_key('adr_street1',result)
-    city = get_key('addr2',result)
+    city = get_key('city',result)
+    if city == '':
+        city = get_key('addr2',result)
     if city == '':
         city = get_key('adr_city',result)
-    zipcode = get_key('zip',result)
+    zipcode = get_key('zipcode',result)
+    if zipcode =='':
+        zipcode = get_key('zip',result)
     if zipcode == '':
         zipcode = get_key('adr_zip',result)
     county  = get_key('county',result)
@@ -70,7 +82,9 @@ def get_sql(result,query_call, table):
     nickname = get_key('nickname',result)
     if nickname == '':
         nickname = get_key('nick',result)
-    licclass = get_key('class',result)
+    licclass = get_key('licclass',result)
+    if licclass == '':
+        licclass = get_key('class',result)
     land = get_key('land',result)
     if land == '':
         land = get_key('country',result)
@@ -88,17 +102,28 @@ def get_sql(result,query_call, table):
         born = get_key('birth_year',result)
 
     aliases = get_key('aliases',result)
-    areacode= get_key('AreaCode',result)
-    timezone= get_key('TimeZone',result)
-    utcoffset= get_key('GMTOffset',result)
+    areacode = get_key('areacode',result)
+    if areacode == '':
+        areacode= get_key('AreaCode',result)
+    timezone = get_key('timezone',result)
+    if timezone == '':
+        timezone= get_key('TimeZone',result)
+    utcoffset = get_key('utcoffset',result)
+    if utcoffset == '':
+        utcoffset= get_key('GMTOffset',result)
     if utcoffset == '':
          utcoffset = get_key('utc_offset',result)
     continent = get_key('continent',result)
 
-    qsldirect = get_key('mqsl',result)
+    qsldirect = get_key('qsldirect',result)
+    if qsldirect == '':
+        qsldirect = get_key('mqsl',result)
     if qsldirect == '':
         qsldirect = get_key('qsldirect',result)
-    buro = get_key('qsl',result)
+    
+    buro = get_key('buro',result)
+    if buro == '':
+        buro = get_key('qsl',result)
     lotw = get_key('lotw',result)
     eqsl = get_key('eqsl',result)
     cqzone = get_key('cqzone',result) 
@@ -368,6 +393,9 @@ useHamqth = True
 table = "rcforb.rawny_details"
 gettable = False
 temptable = '`test`.`temptable_calldata_temptable`'
+
+callsigns = []
+
 for cal in sys.argv[1:]:
     if cal == '-h' or cal == '--help' or cal == '-?':
         print("callinfo [--help] [-n|--nosql] [(-t|--table) <database>.<table> ]  <callsign1 callsign2 ...>")
@@ -395,6 +423,26 @@ for cal in sys.argv[1:]:
         print("/* new table changed from "+table+" to "+cal+" */")
         table = cal
         gettable = False
+        continue
+    callsigns.append(cal)
+    continue
+    
+
+for cal in callsigns:
+    print("-- "+cal)
+    if True:
+        callquery = CallQuery('./settings.cfg')
+        result = callquery.callsign(cal)
+        print("/*")
+        print(result)
+        print("*/")       
+        sql = ""
+        #sql = get_sql2(result, cal, table, temptable)
+        sql += get_sql(result,cal,table)
+        print("*/")
+        print(sql)
+
+        print('')
         continue
     try:
         print("/*")
@@ -430,6 +478,6 @@ for cal in sys.argv[1:]:
         sql += get_sql(result,cal,table)
         print("*/")
         print(sql)
-    
+
     print('')
 
