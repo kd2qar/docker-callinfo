@@ -45,6 +45,7 @@ class CallQuery(object):
         return '';    
 
     def callsign(self, callsign, retry=True):
+        result = None
         if self.useQrz:
             try:
                 result=self.qrz.callsign(callsign)
@@ -58,7 +59,7 @@ class CallQuery(object):
 
         if self.useHamqth:
             try:
-                result = self.hamqth.callsign(callsign)
+                result = self.hamQTH.callsign(callsign)
             except Exception as ex1:
                 print('/*')
                 print('oops HamQTH')
@@ -66,6 +67,10 @@ class CallQuery(object):
                 print('*/')
             else:
                 print('/* using hamqth */')
+                print("/*");print(result);print("*/")
+        if result == None:
+            myresult = dict()
+            return myresult
         myresult = self.getresult(callsign,result)
         return myresult
 

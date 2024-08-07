@@ -48,7 +48,7 @@ def get_sql(result, table):
     querycall = get_key('querycall',result)
     call = get_key('callsign',result)
     fname = get_key('firstname',result)
-    name = get_key('lastname', result)
+    lastname = get_key('lastname', result)
     street1 = get_key('street1',result)
     city = get_key('city',result)
     zipcode = get_key('postalcode',result)
@@ -84,9 +84,6 @@ def get_sql(result, table):
     fips    = get_key('fips',result)
     ccode   = get_key('ccode',result)
 
-    #print("/*")
-    #callquery.printResult(result)
-    #print("*/")
     if nosql:
         return ""
     sql =""
@@ -102,19 +99,43 @@ def get_sql(result, table):
     sql += "SET "
 
     FIELDS = "`callsign`"
-    VALUES = "'"+call+"'"
+    VALUES = "'"+call+"'" 
+    comma = False
 
     if table == 'fieldday.qrzdata':
         FIELDS = "`fdcall`, "+FIELDS
-        VALUES = "'"+query_call+"', "+VALUES
-        sql += "`callsign`='"+call+"',"
+        VALUES = "'"+querycall+"', "+VALUES
+        sql += "`callsign`='"+call+"'"
+        comma = True
 
     #if fname != '' and name != '':
     #    sql += "`fullname`='"+fname+" "+name+"'"
     #    FIELDS += ", `fullname`"
     #    VALUES +=  ",'"+fname+" "+name+"'"
-    comma = False
+    if fname != '':
+        if comma:
+            sql += ","
+        sql += "`firstname`='"+fname+"'"
+        FIELDS += ",`firstname`"
+        VALUES += ",'"+fname+"'"
+        comma = True
+    if lastname != '':
+        if comma:
+            sql += ","
+        lastname = lastname.replace("'","''")
+        sql += "`lastname`='"+lastname+"'"
+        FIELDS += ",`lastname`"
+        VALUES += ",'"+lastname+"'"
+        comma = True
+    if nickname != '':
+        nn = nickname.replace("'","''")
+        if comma: sql += ","
+        sql += "`nickname`='"+nn+"'"
+        FIELDS += ",`nickname`"
+        VALUES += ",'"+nn+"'"
+        comma = True
     if city != '':
+        if comma: sql += ","
         sql += "`city`='"+city+"'"
         FIELDS += ",`city`"
         VALUES +=  ",'"+city+"'"
@@ -140,20 +161,12 @@ def get_sql(result, table):
         FIELDS += ",`country`"
         VALUES += ",'"+country+"'"
         comma = True
-    if fname != '':
+    if county != '':
         if comma:
-            sql += ","
-        sql += "`firstname`='"+fname+"'"
-        FIELDS += ",`firstname`"
-        VALUES += ",'"+fname+"'"
-        comma = True
-    if name != '':
-        if comma:
-            sql += ","
-        lastname = name.replace("'","''")
-        sql += "`lastname`='"+lastname+"'"
-        FIELDS += ",`lastname`"
-        VALUES += ",'"+lastname+"'"
+            sql+= ","
+        sql += "`county`='"+county+"'"
+        FIELDS += ",`county`"
+        VALUES += ",'"+county+"'"
         comma = True
     if email != '':
         if comma:
@@ -170,14 +183,6 @@ def get_sql(result, table):
         sql += "`class`='"+licclass+"'"
         FIELDS += ",`class`"
         VALUES += ",'"+licclass+"'"
-        comma = True
-    if nickname != '':
-        nn = nickname.replace("'","''")
-        if comma:
-            sql += ","
-        sql += "`nickname`='"+nn+"'"
-        FIELDS += ",`nickname`"
-        VALUES += ",'"+nn+"'"
         comma = True
     if lat != '':
         if comma:
@@ -251,7 +256,7 @@ def get_sql(result, table):
         FIELDS += ",`trustee`"
         VALUES +=",'"+trustee+"'"
         comma = True
- 
+    query_call=get_key('querycall',result)
     if table == 'fieldday.qrzdata':
         sql += "     WHERE `fdcall`='"+query_call+"';\n"
     else:
@@ -263,11 +268,11 @@ def get_sql(result, table):
     sql += "DELIMITER ; "
     return sql
 
-def get_sql2(result,query_call, table, temptable):
+def get_sql2(result, table, temptable):
     sql =""
     tempTableCreate = Path('/root/temptable.sql').read_text()
     sql += tempTableCreate
-    sql += get_sql(result,query_call,temptable)
+    sql += get_sql(result,temptable)
     #print("*/");
     if nosql:
         return ""
@@ -311,10 +316,10 @@ for cal in sys.argv[1:]:
         nosql=True
         print("/* NO SQL OUTPUT WILL BE GENERATED */")
         continue
-    if cal == '--noqrz':
+    if cal == '--noqrz' or cal == '--hamqth':
         useQrz = False
         continue
-    if cal == '--nohamqth':
+    if cal == '--nohamqth' or cal == '--qrz':
         useHamqth = False
         continue
     if gettable == True:
@@ -328,18 +333,17 @@ for cal in sys.argv[1:]:
 
 for cal in callsigns:
     print("-- "+cal+" --")
-    if True:
-        #callquery = CallQuery('./settings.cfg')
-        result = callquery.callsign(cal)
-        if not nosql: print("/*")
-        #print(result)
-        callquery.printResult(result)
-        if not nosql: print("*/")
-        if not nosql:
-            sql = ""
-            #sql = get_sql2(result, cal, table, temptable)
-            sql += get_sql(result,table)
-            print(sql)
+    callquery.useHamqth = useHamqth
+    callquery.useQrz = useQrz
+    result = callquery.callsign(cal)
+    if not nosql: print("/*")
+    callquery.printResult(result)
+    if not nosql: print("*/")
+    if not nosql:
+        sql = ""
+        #sql = get_sql2(result, cal, table, temptable)
+        sql += get_sql(result,table)
+        print(sql)
 
-        print('')
+    print('')
 
