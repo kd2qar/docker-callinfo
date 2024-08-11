@@ -2,13 +2,10 @@
 # coding:utf-8
 
 import os
-import configparser
-from configparser import SafeConfigParser
-import qrz_query
-import hamqth_query
 from pathlib import Path
-from qrz_query import QRZ
-from hamqth_query import HamQTH
+from .qrz_query import QRZ
+from .hamqth_query import HamQTH
+from .cb_query import cb_query
 
 class Callerror(Exception):
     pass
@@ -22,27 +19,13 @@ class CallsessionNotFound(Exception):
 class CallMissingCredentials(Exception):
     pass
 
-class CallQuery(object):
+class CallQuery(cb_query):
     def __init__(self,cfg=None):
-        if cfg:
-            self._cfg = SafeConfigParser()
-            self._cfg.read(cfg)
-        else:
-            self.cfg = None
-        self._session = None
+        super().__init__(cfg)
         self.useQrz = True
         self.useHamqth = True
         self.qrz = QRZ(cfg)
         self.hamQTH = HamQTH(cfg)
-
-    def get_key(self,keyname,query_results):
-        value = ""
-        if keyname in query_results:
-            value = query_results[keyname]
-            if value is None:
-                value = ''
-            return value
-        return '';    
 
     def callsign(self, callsign, retry=True):
         result = None
@@ -66,7 +49,7 @@ class CallQuery(object):
                 print(ex1)
                 print('*/')
             else:
-                print('/* using hamqth */')
+                print('-- using hamqth')
                 print("/*");print(result);print("*/")
         if result == None:
             myresult = dict()

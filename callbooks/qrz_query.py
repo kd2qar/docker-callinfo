@@ -5,6 +5,7 @@ import os
 import requests
 import xmltodict
 import configparser
+from .cb_query import cb_query
 from configparser import SafeConfigParser
 
 
@@ -20,16 +21,7 @@ class QRZsessionNotFound(Exception):
 class QRZMissingCredentials(Exception):
     pass
 
-class QRZ(object):
-    def __init__(self, cfg=None):
-        if cfg:
-            self._cfg = SafeConfigParser()
-            self._cfg.read(cfg)
-        else:
-            self._cfg = None
-        self._session = None
-        self._session_key = None
-
+class QRZ(cb_query):
     def _get_session(self):
         if self._cfg and self._cfg.has_section('qrz'):
             username = self._cfg.get('qrz', 'username')

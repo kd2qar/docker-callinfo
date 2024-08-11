@@ -1,17 +1,10 @@
 #!/usr/bin/python3
 
-#import importlib
-#moduleName='qrz.qrz_query'
-#importlib.import_module(moduleName) 
 import sys
-import qrz_query
-import hamqth_query
 import certifi
 import urllib3
 from pathlib import Path
-from qrz_query import QRZ
-from hamqth_query import HamQTH
-from call_query import CallQuery
+from callbooks.call_query import CallQuery
 
 print("/*") 
 urllib3.disable_warnings()
@@ -19,7 +12,6 @@ useHamqth=True
 useQrz=True
 nosql=False
 callquery = CallQuery('./settings.cfg')
-
 
 def print_keys(key_names, query_result):
     """
@@ -107,11 +99,6 @@ def get_sql(result, table):
         VALUES = "'"+querycall+"', "+VALUES
         sql += "`callsign`='"+call+"'"
         comma = True
-
-    #if fname != '' and name != '':
-    #    sql += "`fullname`='"+fname+" "+name+"'"
-    #    FIELDS += ", `fullname`"
-    #    VALUES +=  ",'"+fname+" "+name+"'"
     if fname != '':
         if comma:
             sql += ","
@@ -273,25 +260,20 @@ def get_sql2(result, table, temptable):
     tempTableCreate = Path('/root/temptable.sql').read_text()
     sql += tempTableCreate
     sql += get_sql(result,temptable)
-    #print("*/");
     if nosql:
         return ""
     return sql
 
 # ****************************************************************************
 
-
-qrz = QRZ('./settings.cfg')
-hamqth = HamQTH('./settings.cfg')
-
-cal = 'kd2qar'
+cal = 'w1aw'
 print(sys.argv[1:])
 print ("*/")
 
 nosql=False
 useQrz = True
 useHamqth = True
-
+noResults = False
 
 table = "rcforb.rawny_details"
 gettable = False
@@ -302,19 +284,20 @@ callsigns = []
 for cal in sys.argv[1:]:
     if cal == '-h' or cal == '--help' or cal == '-?':
         print("callinfo [--help] [-n|--nosql] [(-t|--table) <database>.<table> ]  <callsign1 callsign2 ...>")
-        print("\t --help:  Print this help and exit")
-        print("\t --nosql: Do not output the sql statements")
-        print("\t --table: Specify the database table to be used for the sql output")
-        print("\t --qrz:   Only query data from QRZ.com")
-        print("\t --hamqth: Only query data from hamqth.com")
+        print("\t --help:     Print this help and exit")
+        print("\t --nosql:    Do not output the sql statements")
+        print("\t --noresult: Do not output the results list")
+        print("\t --table:    Specify the database table to be used for the sql output")
+        print("\t --qrz:      Only query data from QRZ.com")
+        print("\t --hamqth:   Only query data from hamqth.com")
         exit(0)
     if cal == '-t' or cal == '--table':
         gettable = True
-        print("/* get table on next round */")
+        print("-- get table on next round")
         continue
     if cal == '-n' or cal == '--nosql':
         nosql=True
-        print("/* NO SQL OUTPUT WILL BE GENERATED */")
+        print("-- NO SQL OUTPUT WILL BE GENERATED")
         continue
     if cal == '--noqrz' or cal == '--hamqth':
         useQrz = False
@@ -322,28 +305,29 @@ for cal in sys.argv[1:]:
     if cal == '--nohamqth' or cal == '--qrz':
         useHamqth = False
         continue
+    if cal == '--noresults':
+        noResults = True
+        continue
     if gettable == True:
-        print("/* new table changed from "+table+" to "+cal+" */")
+        print("-- new table changed from "+table+" to "+cal+"")
         table = cal
         gettable = False
         continue
     callsigns.append(cal)
     continue
-    
+
+callquery.useHamqth = useHamqth
+callquery.useQrz = useQrz
 
 for cal in callsigns:
     print("-- "+cal+" --")
-    callquery.useHamqth = useHamqth
-    callquery.useQrz = useQrz
     result = callquery.callsign(cal)
-    if not nosql: print("/*")
-    callquery.printResult(result)
-    if not nosql: print("*/")
+    if not noResults:
+        if not nosql: print("/*")
+        callquery.printResult(result)
+        if not nosql: print("*/")
     if not nosql:
         sql = ""
-        #sql = get_sql2(result, cal, table, temptable)
         sql += get_sql(result,table)
         print(sql)
-
     print('')
-

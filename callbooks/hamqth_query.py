@@ -4,37 +4,25 @@
 import os
 import requests
 import xmltodict
-import configparser
-from configparser import SafeConfigParser
-
+from .cb_query import cb_query
 
 class HamQTHerror(Exception):
     """HamQTH Error"""
-    #pass
+    pass
 
 class CallsignNotFound(Exception):
     """Callsign Not Found Exception"""
-    #pass
+    pass
 
 class HamQTHsessionNotFound(Exception):
     """HamQTH Session Not Found"""
-    #pass
+    pass
 
 class HamQTHMissingCredentials(Exception):
     """HamQTH Missing Credentials"""
-    #pass
+    pass
 
-class HamQTH(object):
-    def __init__(self, cfg=None):
-        if cfg:
-            self._cfg = SafeConfigParser()
-            self._cfg.read(cfg)
-        else:
-            self._cfg = None
-        self._session = None
-        self._session_key = None
-        self._program_name = 'MH1.1'
-
+class HamQTH(cb_query):
     def _get_session(self):
         ## HamQTH session lasts 1 Hour
         if self._cfg and self._cfg.has_section('hamqth'):

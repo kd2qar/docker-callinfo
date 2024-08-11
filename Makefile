@@ -18,6 +18,9 @@ testnosql: build
 test1: build
 	echo "test 1"
 	./callinfo w1aw
+	./callinfo --hamqth w1aw
+	./callinfo w1aw --noresults
+	./callinfo --hamqth w1aw --noresults
 test2: build
 	echo "test 2"
 	 echo "delete FROM fieldday.qrzdata where callsign = 'nj1q';delete FROM fieldday.qrzdata where fdcall = 'nj1q';" | mariadb
@@ -30,6 +33,7 @@ test2: build
 	./callinfo NJ1Q --table fieldday.qrzdata | mariadb
 test3: build
 	echo "test 3"
+	./callinfo w3zr --nosql
 	./callinfo w3zr --hamqth --nosql
 test4: build
 	echo "test 4"
