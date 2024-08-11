@@ -9,7 +9,7 @@ RUN apt-get update  \
      && rm -rf /var/lib/apt/lists*
 WORKDIR /root
 COPY callquery.py /root/
-COPY temptable.sql /root/
+COPY sql/temptable.sql /root/
 COPY callbooks/ /root/callbooks/
 COPY settings.cfg /root/
 RUN chmod +x /root/callquery.py
