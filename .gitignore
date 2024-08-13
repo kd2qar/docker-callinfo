@@ -2,3 +2,4 @@
 [Ii][Gg][Nn][Oo][Rr][Ee]
 settings.cfg
 __pycache__
+sql/migraterawny.sql

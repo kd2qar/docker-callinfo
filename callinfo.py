@@ -50,40 +50,6 @@ for cal in sys.argv[1:]:
         gettable = False
         continue
     continue
-    try:
-        print("/*")
-        #raise Exception("FAKE IT")
-        if not useQrz:
-            raise  Exception("Skip QRZ")
-        result = qrz.callsign(cal)
-        print(result)
-        print("*/")
-    except Exception as ex:
-        try:
-            print('oops QRZ')
-            print(ex)
-            result = hamqth.callsign(cal)
-            print(result)
-            print("*/")
-        except Exception as ex1:
-            #print(ex)
-            print('oops HamQTH')
-            print(ex1)
-            print("*/")
-        else:
-            sql = get_sql(result,cal, table)
-            print("*/")
-            print(sql)
-    else:
-        #print_keys(['fname', 'name'], result)
-        #print_keys(['addr2', 'state'], result)
-        #print_keys(['country'], result)
-        #print_keys(['grid','email'], result)
-        sql = ""
-        #sql = get_sql2(result, cal, table, temptable)
-        sql += get_sql(result,cal,table)
-        print("*/")
-        print(sql)
 
 for cal in callsigns:
     print("-- "+cal)
@@ -112,10 +78,6 @@ for cal in callsigns:
             print("*/")
             print(sql)
     else:
-        #print_keys(['fname', 'name'], result)
-        #print_keys(['addr2', 'state'], result)
-        #print_keys(['country'], result)
-        #print_keys(['grid','email'], result)
         sql = ""
         #sql = get_sql2(result, cal, table, temptable)
         sql += get_sql(result,cal,table)

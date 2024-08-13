@@ -1,4 +1,17 @@
 #!/bin/bash
 
-docker run -it --rm kd2qar/callinfo /root/callquery.py ${@} 
+USERFILES="--mount type=bind,source=/etc/passwd,target=/etc/passwd,readonly --mount type=bind,source=/etc/group,target=/etc/group,readonly"
+USERX="--user $(id -u):$(id -g) "
+if [ $(id -u) = 0 ]; then
+	HDIR='/root/'
+else
+	HDIR="/home/$(id -nu)/"
+fi
+
+if [ -f ${HDIR}/.my.cnf ]; then
+	CNF="--mount type=bind,source=${HDIR}.my.cnf,target=/root/.my.cnf,readonly --mount type=bind,source=${HDIR}.my.cnf,target=${HDIR}.my.cnf,readonly"
+	#echo ${CNF}
+fi
+
+docker run -it --rm ${USERFILES} ${CNF} ${USERX}  kd2qar/callinfo /callinfo/callquery.py ${@} 
 

@@ -2,10 +2,12 @@
 # coding:utf-8
 
 import os
+import datetime
 from pathlib import Path
 from .qrz_query import QRZ
 from .hamqth_query import HamQTH
 from .cb_query import cb_query
+from .call_sql import CallSQL
 
 class Callerror(Exception):
     pass
@@ -24,11 +26,36 @@ class CallQuery(cb_query):
         super().__init__(cfg)
         self.useQrz = True
         self.useHamqth = True
+        self.forceRefresh = False
+        self._refreshDays = 90
         self.qrz = QRZ(cfg)
         self.hamQTH = HamQTH(cfg)
+        self.callSQL = CallSQL(cfg)
 
     def callsign(self, callsign, retry=True):
         result = None
+        refreshdb = True
+        if not self.forceRefresh:
+            try:
+                result=self.callSQL.callsign(callsign)
+                if result and 'last_updated' in result:
+                    lu = result['last_updated']
+                    nw = datetime.datetime.now()
+                    delta = nw-lu
+                    if (delta.days > self._refreshDays):
+                        # force a refresh
+                        result = None
+
+            except Exception as ex:
+                print('/*')
+                print('oops SQL')
+                print(ex)
+                print('*/')
+            else:
+                if (result):
+                    refreshdb = False
+                    self.useQrz=False
+                    self.useHamqth=False 
         if self.useQrz:
             try:
                 result=self.qrz.callsign(callsign)
@@ -39,6 +66,7 @@ class CallQuery(cb_query):
                 print('*/')
             else:
                 self.useHamqth=False
+                refreshdb = True
 
         if self.useHamqth:
             try:
@@ -51,168 +79,131 @@ class CallQuery(cb_query):
             else:
                 print('-- using hamqth')
                 print("/*");print(result);print("*/")
+                refreshdb = True
         if result == None:
             myresult = dict()
             return myresult
         myresult = self.getresult(callsign,result)
+        if refreshdb:
+            self.callSQL.insertcall(callsign,myresult)
         return myresult
+    
+    def dxcc(self,dxcc:str,retry=True):
+        refreshdb=True
+        result = None
+        try:
+            result = self.callSQL.dxcc(dxcc)
+            if result and 'last_updated' in result:
+                lu = result['last_updated']
+                nw = datetime.datetime.now()
+                delta = nw-lu
+                if (delta.days > self._refreshDays):
+                    # force a refresh
+                    result = None
+        except Exception as ex:
+            print('/* oops DXCC SQL')
+            print(str(ex) + '*/')
+        else:
+            if (result):
+                refreshdb = False
+        if result == None:
+            try:
+                result = self.qrz.dxcc(dxcc)
+                result['entity_number'] = result['dxcc']
+                result['entity_name']=result['name']
+                result['dxcc_name']=result['name']
+                result['utcoffset']=result['timezone']
+                result['lattitude']=result['lat']
+                result['longitude']=result['lon']
+                if result['cqzone'] is None or  result['cqzone'] == 0 or result['cqzone'] == '0' or result['cqzone'] == 'None' :
+                    result['cqzone']=''
+                if result['ituzone'] is None or result['ituzone'] ==0 or result['ituzone'] =='0' or result['ituzone'] == 'None' :
+                    result['ituzone']=''
+            except Exception as ex:
+                print('/* oops DXCC QRZ')
+                print('{0} */',ex)
+            else:
+                refreshdb = True
+        if refreshdb:
+            self.callSQL.insertdxcc(dxcc,result)
+        return result
 
-    def getresult(self,query_call,result):
+
+    def convertkeys(self,keys:list,result:dict):
+        val = ''
+        for x in keys:
+            val = self.get_key(x,result)
+            if val != '': break
+        return val
+    
+    def getresult(self,query_call:str,result:dict):
         myresult = dict()
 
-        call = self.get_key('call',result).lower()
-        if call == '':
-            call = self.get_key('callsign',result).lower()
-        myresult['callsign'] = call
-
+        myresult['callsign'] = self.convertkeys(['callsign','call'],result)
+        myresult['prev_call']=self.convertkeys(['prev_call','p_call'],result)
         myresult['querycall'] = query_call.lower()
-
-        fname = self.get_key('fname',result)
-        if fname == '':
-            fname = self.get_key('nick',result)
-        myresult['firstname'] = fname.title()
-
-        lastname = self.get_key('name', result)
-        if lastname == '':
-            lastname = self.get_key('adr_name',result)
+        myresult['firstname'] = self.convertkeys(['firstname','fname','nick'],result).title()
+        lastname = self.convertkeys(['lastname','name','adr_name'],result)
         if lastname.isupper(): lastname = lastname.title() # only title names that are only uppercase. Assume mixed case is as intended
         myresult['lastname'] = lastname
+        myresult['nickname']=self.convertkeys(['nickname','nick'],result).title()
+        myresult['street1']=self.convertkeys(['street1','addr1','adr_street1'],result)
+        myresult['city']=self.convertkeys(['city','addr2','adr_city'],result)
+        myresult['postalcode']=self.convertkeys(['postalcode','zip','adr_zip','zipcode'],result)
+        myresult['county']= self.convertkeys(['county','us_county'],result)
+        myresult['grid'] = self.convertkeys(['grid','gridsquare'],result)
+        myresult['state']=self.convertkeys(['state','us_state'],result)
+        myresult['country'] = self.convertkeys(['country','adr_country'],result)
+        myresult['email']=self.convertkeys(['email'],result)
+        myresult['licclass']=self.convertkeys(['licclass','class'],result)
+        myresult['lattitude']=self.convertkeys(['lattitude','latitude','lat'],result)
+        myresult['longitude']=self.convertkeys(['longitude','lon'],result)
+        # DXCC Number
+        myresult['dxcc']=self.convertkeys(['dxcc','adif'],result)
+        # DXXCC Name
+        myresult['dxcc_name']=self.convertkeys(['dxcc_name','land','country'],result)
+        myresult['birthyear']=self.convertkeys(['birthyear','born','birth_year'],result)
+        myresult['aliases']=self.convertkeys(['aliases'],result)
+        myresult['areacode']=self.convertkeys(['areacode','AreaCode'],result)
+        myresult['timezone']=self.convertkeys(['timezone','TimeZone'],result)
+        myresult['utcoffset']=self.convertkeys(['utcoffset','utc_offset','GMTOffset'],result)
+        myresult['continent']=self.convertkeys(['continent'],result)
+        myresult['qsldirect']=self.convertkeys(['qsldirect','msql'],result)
+        myresult['buro']=self.convertkeys(['buro','qsl'],result)
+        myresult['lotw']=self.convertkeys(['lotw'],result)
+        myresult['eqsl']=self.convertkeys(['eqsl'],result)
+        myresult['cqzone']=self.convertkeys(['cqzone','cq'],result)
+        myresult['ituzone']=self.convertkeys(['ituzone','itu'],result)
+        myresult['qsl_via']=self.convertkeys(['qsl_via','qslmgr'],result)
+        myresult['trustee']=self.convertkeys(['trustee'],result)
+        myresult['efdate']=self.convertkeys(['efdate'],result)
+        myresult['expdate']=self.convertkeys(['expdate'],result)
+        myresult['biodate']=self.convertkeys(['biodate'],result)
+        myresult['moddate']=self.convertkeys(['moddate'],result)
+        # FIPS county identifier (USA)
+        myresult['fips']=self.convertkeys(['fips'],result)
+        myresult['ccode']=self.convertkeys(['ccodem'],result)
 
-        nickname = self.get_key('nickname',result)
-        if nickname == '':
-            nickname = self.get_key('nick',result)
-        myresult['nickname']=nickname.title()
-
-        addr1 = self.get_key('addr1',result)
-        if addr1 == '':
-            addr1 = self.get_key('adr_street1',result)
-        myresult['street1']=addr1
-
-        city = self.get_key('addr2',result)
-        if city == '':
-            city = self.get_key('adr_city',result)
-        myresult['city']=city
-
-        zipcode = self.get_key('zip',result)
-        if zipcode == '':
-            zipcode = self.get_key('adr_zip',result)
-        myresult['postalcode']=zipcode
-
-        county  =self.get_key('county',result)
-        if county == '':
-            county = self.get_key('us_county',result)
-        myresult['county']= county
-
-        grid = self.get_key('grid',result)
-        myresult['grid'] = grid
-        
-        state = self.get_key('state',result)
-        if state == '':
-            state = self.get_key('us_state',result)
-        myresult['state']=state
-
-        country = self.get_key('country',result)
-        if country == '' or self.get_key('adr_country',result) != '':
-            country = self.get_key('adr_country',result)
-        myresult['country'] = country
-
-        email = self.get_key('email',result)
-        myresult['email']=email
-
-        licclass = self.get_key('class',result)
-        myresult['licclass']=licclass
-
-        land = self.get_key('land',result)
-        if land == '':
-            land = self.get_key('country',result)
-        myresult['land']=land
-
-        lat  = self.get_key('lat',result)
-        if lat == '':
-            lat = self.get_key('latitude',result)
-        myresult['lattitude']=lat
-
-        lon  = self.get_key('lon',result)
-        if lon == '':
-            lon = self.get_key('longitude',result)
-        myresult['longitude']=lon
-
-        dxcc = self.get_key('dxcc',result)
-        if dxcc == '':
-            dxcc = self.get_key('adif',result)
-        myresult['dxcc']=dxcc
-
-        born = self.get_key('born',result)
-        if born == '':
-            born = self.get_key('birth_year',result)
-        myresult['birthyear']=born
-
-        aliases = self.get_key('aliases',result)
-        myresult['aliases']=aliases
-
-        areacode= self.get_key('AreaCode',result)
-        myresult['areacode']=areacode
-
-        timezone= self.get_key('TimeZone',result)
-        myresult['timezone']=timezone
-
-        utcoffset= self.get_key('GMTOffset',result)
-        if utcoffset == '':
-            utcoffset = self.get_key('utc_offset',result)
-        myresult['utcoffset']=utcoffset
-
-        continent = self.get_key('continent',result)
-        myresult['continent']=continent
-
-        qsldirect = self.get_key('mqsl',result)
-        if qsldirect == '':
-            qsldirect = self.get_key('qsldirect',result)
-        myresult['qsldirect']=qsldirect
-
-        buro = self.get_key('qsl',result)
-        myresult['buro']=buro
-
-        lotw = self.get_key('lotw',result)
-        myresult['lotw']=lotw
-
-        eqsl = self.get_key('eqsl',result)
-        myresult['eqsl']=eqsl
-
-        cqzone = self.get_key('cqzone',result) 
-        if cqzone == '':
-            cqzone = self.get_key('cq',result)
-        myresult['cqzone']=cqzone
-
-        ituzone = self.get_key('ituzone',result)
-        if ituzone == '':
-            ituzone = self.get_key('itu',result)
-        myresult['ituzone']=ituzone
-
-        qsl_via = self.get_key('qslmgr',result)
-        if qsl_via == '':
-            qsl_via = self.get_key('qsl_via',result)
-        myresult['qsl_via']=qsl_via
-        
-        trustee = self.get_key('trustee',result)
-        myresult['trustee']=trustee
-
-        efdate  = self.get_key('efdate',result)
-        myresult['efdate']=efdate
-
-        expdate = self.get_key('expdate',result)
-        myresult['expdate']=expdate
-
-        biodate = self.get_key('biodate',result)
-        myresult['biodate']=biodate
-
-        moddate = self.get_key('moddate',result)
-        myresult['moddate']=moddate
-
-        fips    = self.get_key('fips',result)
-        myresult['fips']=fips
-
-        ccode   = self.get_key('ccode',result)
-        myresult['ccode']=ccode
+        ## AUGMENT WITH DXCC INFORMATION
+        if myresult['dxcc'] != '':
+            dxccdata = self.dxcc(myresult['dxcc'])
+            if not dxccdata is None:
+                if self.get_key('continent',myresult) == '':
+                    myresult['continent'] = dxccdata['continent']
+                if self.get_key('dxcc_name',myresult) == '':
+                    myresult['dxcc_name']=dxccdata['dxcc_name']
+                if self.get_key('ituzone',myresult) == '':
+                    myresult['ituzone']=str(dxccdata['ituzone'])
+                if self.get_key('cqzone',myresult) == '':
+                    myresult['cqzone']=str(dxccdata['cqzone'])
+                if self.get_key('utcoffset',myresult) =='':
+                    myresult['utcoffset']=str(dxccdata['utcoffset'])
+                if self.get_key('longitude',myresult) =='':
+                    myresult['longitude']=dxccdata['longitude']
+                if self.get_key('lattitude',myresult) =='':
+                    myresult['lattitude']=dxccdata['lattitude']
+            else:
+                assert(False)
         return myresult
     
     def printResult(self,result:dict):
