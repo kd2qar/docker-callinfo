@@ -8,9 +8,10 @@ from configparser import SafeConfigParser
 
 
 class cb_query(object):
-    def __init__(self, cfg=None):
+    def __init__(self, cfg:str=None):
+        self._cfg:SafeConfigParser = None
         if cfg:
-            self._cfg = SafeConfigParser()
+            self._cfg:SafeConfigParser = SafeConfigParser()
             self._cfg.read(cfg)
         else:
             self._cfg = None

@@ -23,8 +23,10 @@ class QRZMissingCredentials(Exception):
 class QRZ(cb_query):
     def _get_session(self):
         if self._cfg and self._cfg.has_section('qrz'):
-            username = self._cfg.get('qrz', 'username')
-            password = self._cfg.get('qrz', 'password')
+            username    = self._cfg.get('qrz', 'username', fallback='')
+            password    = self._cfg.get('qrz', 'password', fallback='')
+            agent       = self._cfg.get('qrz','agent',fallback='MH1.1')
+            apiVersion  = self._cfg.get('qrz','apiversion',fallback='1.34')
         else:
             username = os.environ.get('QRZ_USER')
             password = os.environ.get('QRZ_PASSWORD')
@@ -32,7 +34,7 @@ class QRZ(cb_query):
             raise QRZMissingCredentials("No Username/Password found")
         version='1.31'
 
-        url = '''https://xmldata.qrz.com/xml/1.31/?username={0}&password={1};;agent=MH1.1'''.format(username, password)
+        url = '''https://xmldata.qrz.com/xml/{3}/?username={0}&password={1};;agent={2}'''.format(username, password,agent,apiVersion)
         self._session = requests.Session()
         self._session.verify = bool(os.getenv('SSL_VERIFY', False))
         r = self._session.get(url)

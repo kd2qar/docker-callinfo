@@ -13,6 +13,13 @@ useHamqth=True
 useQrz=True
 nosql=False
 callquery = CallQuery('./settings.cfg')
+table = "rcforb.rawny_details"
+
+if callquery._cfg:
+    try:
+        table = callquery._cfg.get('callbook','outputTable')
+    except:
+        """ no op """
 
 def print_keys(key_names:list, query_result:dict):
     """
@@ -72,34 +79,7 @@ def get_sql(callsign:str,table:str,data:dict):
     return sql
 
 def getFieldMap(table):
-    ## NEED TO CREATE A MORE FLEXIBLE FIELD MATCHING SYSTEM
-    ## PROBABLY A MAPPING FILE
-    if table == 'fieldday.qrzdata':
-        return {'fdcall':'callsign','callsign':'callsign','aliases':'aliases',
-         'trustee':'trustee','nickname':'nickname','firstname':'firstname',
-         'lastname':'lastname','grid':'grid','lattitude':'lattitude',
-         'longitude':'longitude','ituzone':'ituzone','cqzone':'cqzone',
-         'dxcc':'dxcc','county':'county','continent':'continent','street1':'street1',
-         'city':'city','state':'state','postalcode':'postalcode','country':'country',
-         'licclass':'licclass','qrz_email':'qrz_mail','email':'email','phone':'phone'}
-    if table == 'rcforb.rawny_details':
-        return {'callsign':'callsign','aliases':'aliases',
-         'trustee':'trustee','nickname':'nickname','firstname':'firstname',
-         'lastname':'lastname','grid':'grid','lattitude':'lattitude',
-         'longitude':'longitude','ituzone':'ituzone','cqzone':'cqzone',
-         'dxcc':'dxcc','county':'county','continent':'continent','street1':'street1',
-         'city':'city','state':'state','postalcode':'postalcode','country':'country',
-         'licclass':'licclass','qrz_email':'qrz_mail','email':'email','phone':'phone'}
-    if table == 'test.temptable_calldata_temptable':
-        return{'callsign':'callsign','aliases':'aliases',
-         'trustee':'trustee','nickname':'nickname','firstname':'firstname',
-         'lastname':'lastname','grid':'grid','lattitude':'lattitude',
-         'longitude':'longitude','ituzone':'ituzone','cqzone':'cqzone',
-         'dxcc':'dxcc','county':'county','continent':'continent','street1':'street1',
-         'city':'city','state':'state','postalcode':'postalcode','country':'country',
-         'licclass':'licclass','qrz_email':'qrz_mail','email':'email','phone':'phone'
-        }
-
+    return callquery.getFieldMap(table)
 
 # ****************************************************************************
 
@@ -113,9 +93,7 @@ useHamqth = True
 noResults = False
 forceRefresh=False
 
-table = "rcforb.rawny_details"
 gettable = False
-temptable = '`test`.`temptable_calldata_temptable`'
 
 callsigns = []
 

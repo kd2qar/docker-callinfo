@@ -28,6 +28,12 @@ class CallQuery(cb_query):
         self.useHamqth = True
         self.forceRefresh = False
         self._refreshDays = 90
+        if self._cfg and self._cfg.has_section('callbook') and self._cfg.has_option('callbook','refreshDays') :
+            try:
+                self._refreshDays = self._cfg.getint('callbook','refreshDays',fallback=90)
+            except:
+                """ no op """
+
         self.qrz = QRZ(cfg)
         self.hamQTH = HamQTH(cfg)
         self.callSQL = CallSQL(cfg)
@@ -60,8 +66,7 @@ class CallQuery(cb_query):
             try:
                 result=self.qrz.callsign(callsign)
             except Exception as ex:
-                print('/*')
-                print('oops QRZ')
+                print('/*\noops QRZ')
                 print(ex)
                 print('*/')
             else:
@@ -72,8 +77,7 @@ class CallQuery(cb_query):
             try:
                 result = self.hamQTH.callsign(callsign)
             except Exception as ex1:
-                print('/*')
-                print('oops HamQTH')
+                print('/*\noops HamQTH')
                 print(ex1)
                 print('*/')
             else:
@@ -212,3 +216,12 @@ class CallQuery(cb_query):
         """        
         for x in result:
             print(x.ljust(10)+"= "+result[x])
+
+    def getFieldMap(self,table:str):
+        cfg = self._cfg
+        if cfg and cfg.has_section(table):
+            cmap = {}
+            for x in cfg.items(table):
+                cmap[x[0]]=x[1]
+            return cmap
+        return None

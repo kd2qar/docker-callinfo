@@ -68,8 +68,6 @@ COLLATE=utf8mb4_general_ci
 COMMENT='Details from QRZ and other sources for each callsign'
 ;
 
--- INSERT INTO `callbook`.`callinfo` ( `callsign`,`nickname`) VALUES( 'xyzzy','bogus entry' );
-
 -- DROP TABLE IF EXISTS `callbook`.`dxcc`;
 
 CREATE TABLE IF NOT EXISTS callbook.dxcc
@@ -88,5 +86,3 @@ CREATE TABLE IF NOT EXISTS callbook.dxcc
 `last_updated` timestamp DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() COMMENT 'timestamp of last update from online callbook',
 PRIMARY KEY (`dxcc`)
 ) COMMENT='Contains information on DXCC entitities';
-
-INSERT INTO callbook.dxcc (dxcc,dxcc_name) VALUES(-999,'BOGUS ENTITY');

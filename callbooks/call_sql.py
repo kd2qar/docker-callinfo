@@ -93,35 +93,22 @@ class CallSQL(cb_query):
     
     def getdxcccolumns(self,rowsample:dict = None):
         if self._dxcccolumnnames is None:
-            # GET FIELDS
-            if rowsample is None:
-                n = self.connectdb().execute("SELECT * FROM "+self._dxcctable+" LIMIT 1")
-                if n <= 0:
-                    return None
-                rowsample = self._dbcursor.fetchone()
-            columns = []
-            for x in rowsample:
-                columns.append(x)
-            self._dxcccolumnnames = columns
-        else:
-            columns = self._dxcccolumnnames
+            self._dxcccolumnnames = self.getcols(self._sqldatabase,self._dxcctable)
+        return self._dxcccolumnnames
+
+    def getcols(self,database:str,tablename:str):
+        n = self.connectdb().execute("SELECT column_name FROM information_schema.columns WHERE table_schema = '{0}' AND table_name = '{1}'".format(database,tablename))
+        if n <= 0: return None
+        cols = self._dbcursor.fetchall()
+        columns = []
+        for x in cols:
+            columns.append(x['column_name'])
         return columns
 
     def getcolumns(self,rowsample:dict = None):
         if self._columnnames is None:
-            # GET FIELDS
-            if rowsample is None:
-                n = self.connectdb().execute("SELECT * FROM "+self._sqltable+" LIMIT 1")
-                if n <= 0:
-                    return None
-                rowsample = self._dbcursor.fetchone()
-            columns = []
-            for x in rowsample:
-                columns.append(x)
-            self._columnnames = columns
-        else:
-            columns = self._columnnames
-        return columns
+            self._columnnames = self.getcols(self._sqldatabase,self._sqltable)
+        return self._columnnames
 
     def insertdxcc(self,dxcc:str,data:dict):
         sql = """INSERT INTO `{}` """.format(self._dxcctable)
