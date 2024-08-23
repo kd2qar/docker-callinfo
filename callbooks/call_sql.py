@@ -97,6 +97,8 @@ class CallSQL(cb_query):
         return self._dxcccolumnnames
 
     def getcols(self,database:str,tablename:str):
+        ## USE THE information_schema database to get the column
+        ## names from a particular table in a database
         n = self.connectdb().execute("SELECT column_name FROM information_schema.columns WHERE table_schema = '{0}' AND table_name = '{1}'".format(database,tablename))
         if n <= 0: return None
         cols = self._dbcursor.fetchall()
@@ -106,6 +108,10 @@ class CallSQL(cb_query):
         return columns
 
     def getcolumns(self,rowsample:dict = None):
+        ## DEPRECATED - DONT USE THIS
+        ## Uses a sample row from a table query to determine the column names for that table.
+        ## use getcols() instead
+        ##
         if self._columnnames is None:
             self._columnnames = self.getcols(self._sqldatabase,self._sqltable)
         return self._columnnames

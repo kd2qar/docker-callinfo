@@ -26,7 +26,12 @@ class cb_query(object):
             if value is None:
                 value = ''
             return value
-        return '';    
+        return '';   
+
+    def removekey(self,d:dict, key:str):
+        r = dict(d)
+        del r[key]
+        return r
 
     def printResult(self,result:dict):
         """

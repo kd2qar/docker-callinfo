@@ -70,7 +70,7 @@ class QRZ(cb_query):
             if ham:
                 if 'email' in ham:
                     ham['qrz_email'] = ham['email']
-                    ham['email']=''
+                    ham = self.removekey(ham,'email')
                 return ham
         raise Exception("Unhandled Error during Query")
 

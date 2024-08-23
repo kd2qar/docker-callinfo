@@ -76,5 +76,8 @@ class HamQTH(cb_query):
         else:
             ham = raw.get('search')
             if ham:
+                if 'email' in ham:
+                    ham['hamqth_email'] = ham['email']
+                    ham = self.removekey(ham,'email')
                 return ham
         raise Exception("Unhandled Error during Query")

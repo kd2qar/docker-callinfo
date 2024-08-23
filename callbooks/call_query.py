@@ -24,9 +24,12 @@ class CallMissingCredentials(Exception):
 class CallQuery(cb_query):
     def __init__(self,cfg=None):
         super().__init__(cfg)
+        self.noBlanks = False
         self.useQrz = True
         self.useHamqth = True
         self.forceRefresh = False
+        #self.compact = False ## generate compact output.
+        self.compact_header_emitted = False
         self._refreshDays = 90
         if self._cfg and self._cfg.has_section('callbook') and self._cfg.has_option('callbook','refreshDays') :
             try:
@@ -41,6 +44,8 @@ class CallQuery(cb_query):
     def callsign(self, callsign, retry=True):
         result = None
         refreshdb = True
+        useQrz = self.useQrz
+        useHamqth = self.useHamqth
         if not self.forceRefresh:
             try:
                 result=self.callSQL.callsign(callsign)
@@ -60,9 +65,9 @@ class CallQuery(cb_query):
             else:
                 if (result):
                     refreshdb = False
-                    self.useQrz=False
-                    self.useHamqth=False 
-        if self.useQrz:
+                    useQrz=False
+                    useHamqth=False 
+        if useQrz:
             try:
                 result=self.qrz.callsign(callsign)
             except Exception as ex:
@@ -70,10 +75,10 @@ class CallQuery(cb_query):
                 print(ex)
                 print('*/')
             else:
-                self.useHamqth=False
+                useHamqth=False
                 refreshdb = True
 
-        if self.useHamqth:
+        if useHamqth:
             try:
                 result = self.hamQTH.callsign(callsign)
             except Exception as ex1:
@@ -159,6 +164,8 @@ class CallQuery(cb_query):
         myresult['state']=self.convertkeys(['state','us_state'],result)
         myresult['country'] = self.convertkeys(['country','adr_country'],result)
         myresult['email']=self.convertkeys(['email'],result)
+        myresult['qrz_email']=self.convertkeys(['qrz_email'],result)
+        myresult['hamqth_email']=self.convertkeys(['hamqth_email'],result)
         myresult['licclass']=self.convertkeys(['licclass','class'],result)
         myresult['lattitude']=self.convertkeys(['lattitude','latitude','lat'],result)
         myresult['longitude']=self.convertkeys(['longitude','lon'],result)
@@ -215,7 +222,44 @@ class CallQuery(cb_query):
         print formatted results
         """        
         for x in result:
+            if self.noBlanks and (result[x] is None or result[x] == ''):
+                continue
             print(x.ljust(10)+"= "+result[x])
+
+    def spc(self,result:dict):
+        if not result['state'] is None and not result['state'] == '':
+            return result['state']
+        return result['country']
+
+    def fullname(self,result:dict):
+        fullname =''
+        if not result['nickname'] is None and not result['nickname'] == '':
+            fullname = result['nickname'] + " " + result['lastname']
+        else:
+            if not result['firstname'] is None and not result['firstname'] == '':
+                fullname = result['firstname'] + " " + result['lastname']
+            else:
+                fullname = result['lastname']
+        return fullname
+
+    def printCompact(self,result:dict,fields = None):
+        if fields is None:
+            if not self.compact_header_emitted:
+                print('{:10s} {:20s} {:15s} {:15s} '.format('callsign', 'name','city','SPC'))
+                self.compact_header_emitted = True
+
+            print('{:10s} {:20s} {:15s} {:15s} '.format(result['callsign'], self.fullname(result), result['city'], self.spc(result)))
+        else:
+            row = ''
+            if not self.compact_header_emitted:
+                hdr = ''
+                for f in fields:
+                    hdr += f.ljust(fields[f]+1,' ')
+                print(hdr)
+                self.compact_header_emitted = True
+            for f in fields:
+                row += result[f].ljust(fields[f]+1,' ')
+            print(row)
 
     def getFieldMap(self,table:str):
         cfg = self._cfg

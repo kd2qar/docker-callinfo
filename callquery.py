@@ -92,41 +92,64 @@ useQrz = True
 useHamqth = True
 noResults = False
 forceRefresh=False
+noBlanks=False
+compact = False
 
 gettable = False
 
 callsigns = []
 
+def help():
+    print("callinfo [--help] [-n|--nosql] [(-t|--table) <database>.<table> ]  <callsign1 callsign2 ...>")
+    print("\t --help:     Print this help and exit")
+    print("\t --nosql:    Do not output the sql statements")
+    print("\t --noresult: Do not output the results list")
+    print("\t --noblanks: Do not output empty results")
+    print("\t --brief:    Same as --nosql --noblanks")
+    print("\t --table:    Specify the database table to be used for the sql output")
+    print("\t --qrz:      Only query data from QRZ.com")
+    print("\t --hamqth:   Only query data from hamqth.com")
+
 for cal in sys.argv[1:]:
-    if cal == '-h' or cal == '--help' or cal == '-?':
-        print("callinfo [--help] [-n|--nosql] [(-t|--table) <database>.<table> ]  <callsign1 callsign2 ...>")
-        print("\t --help:     Print this help and exit")
-        print("\t --nosql:    Do not output the sql statements")
-        print("\t --noresult: Do not output the results list")
-        print("\t --table:    Specify the database table to be used for the sql output")
-        print("\t --qrz:      Only query data from QRZ.com")
-        print("\t --hamqth:   Only query data from hamqth.com")
-        exit(0)
-    if cal == '-t' or cal == '--table':
-        gettable = True
-        print("-- get table on next round")
-        continue
-    if cal == '-n' or cal == '--nosql':
-        nosql=True
-        print("-- NO SQL OUTPUT WILL BE GENERATED")
-        continue
-    if cal == '--noqrz' or cal == '--hamqth':
-        useQrz = False
-        continue
-    if cal == '--nohamqth' or cal == '--qrz':
-        useHamqth = False
-        continue
-    if cal == '--noresults':
-        noResults = True
-        continue
-    if cal == '--refresh' or cal == '--force':
-        forceRefresh = True
-        continue        
+    if cal[:1] == '-':
+        if cal == '-h' or cal == '--help' or cal == '-?':
+            help()
+            exit(0)
+        if cal == '-t' or cal == '--table':
+            gettable = True
+            print("-- get table on next round")
+            continue
+        if cal == '-n' or cal == '--nosql':
+            nosql=True
+            print("-- NO SQL OUTPUT WILL BE GENERATED")
+            continue
+        if cal == '--noqrz' or cal == '--hamqth':
+            useQrz = False
+            continue
+        if cal == '--nohamqth' or cal == '--qrz':
+            useHamqth = False
+            continue
+        if cal == '--noresults':
+            noResults = True
+            continue
+        if cal == '--noblanks':
+            noBlanks = True
+            continue
+        if cal == '--brief':
+            noBlanks = True
+            nosql = True
+            continue
+        if cal == '--compact':
+            compact = True
+            nosql = True
+            continue
+        if cal == '--refresh' or cal == '--force':
+            forceRefresh = True
+            continue        
+        # UNKNOWN OPTION
+        print("UNKNOWN OPTION: "+cal)
+        help()
+        exit(2)
     if gettable == True:
         print("-- new table changed from "+table+" to "+cal+"")
         table = cal
@@ -138,17 +161,42 @@ for cal in sys.argv[1:]:
 callquery.useHamqth = useHamqth
 callquery.useQrz = useQrz
 callquery.forceRefresh = forceRefresh
-
+callquery.noBlanks = noBlanks
+#callquery.compact = compact
+results = []
 for cal in callsigns:
-    print("-- "+cal+" --")
+    if not compact:
+        print("-- "+cal+" --")
     result = callquery.callsign(cal)
     if not result is None and 'callsign' in result and result['callsign'] != '':
-        if not noResults:
-            if not nosql: print("/*")
-            callquery.printResult(result)
-            if not nosql: print("*/")
-        if not nosql:
-            sql = ""
-            sql += get_sql(cal,table,result)
-            print(sql)
-    print('')
+        if compact:
+            results.append(result)
+        else:
+            if not noResults:
+                if not nosql: print("/*")
+                callquery.printResult(result)
+                if not nosql: print("*/")
+            if not nosql:
+                sql = ""
+                sql += get_sql(cal,table,result)
+                print(sql)
+            print('')
+    else:
+        print("/* ",result," */")
+
+if compact:
+    fields = {'callsign':len('callsign'),'fullname':len('name'),'city':len('city'),'SPC':len('SPC')}
+    callquery.compact_header_emitted = False
+    for r in results:
+        if not 'fullname' in r:
+            r['fullname'] = callquery.fullname(r)
+        if not 'SPC' in r:
+            r['SPC'] = callquery.spc(r)
+
+        for f in fields:
+            if r in results:
+                fields[f]=max(fields[f],len(r[f]))
+    for r in results:
+        callquery.printCompact(r,fields)
+
+

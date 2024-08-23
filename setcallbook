@@ -1,0 +1,139 @@
+#!/bin/bash
+#
+#	Update/augment Callbook data
+#
+MARIADB=mariadb
+
+POSITIONAL_ARGS=()
+#QUIET=0
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -q|--quiet)
+      QUIET=true
+      shift # past argument
+      #shift # past value
+      ;;
+    -c|--callsign|--call)
+      CALL="${2}";shift;shift
+      ;;
+    -p|--phone)
+      PHONE="phone='${2}'"
+      shift # past argument
+      shift
+      ;;
+    -e|--email)
+      EMAIL="email='${2}'"
+      shift # past argument
+      shift 
+      ;;
+    --nickname|-n)
+      NICKNAME="nickname='${2}'"
+      shift;shift
+      ;;
+    --firstname)
+      FIRSTNAME="firstname='$2'"
+      shift;shift
+      ;;
+    --lastname)
+      LASTNAME="lastname='$2'"
+      shift;shift
+      ;;
+    --country)
+      COUNTRY="country='$2'"
+      shift;shift
+      ;;
+    --grid)
+      GRID="grid='${2}'"
+      shift;shift
+      ;;
+    --class)
+      CLASS="licclass='${2}'"
+      shift;shift
+      ;;
+    --city|--addr2)
+      ADDR2="city='${2}'"
+      shift;shift
+      ;;
+    -v|--verbose)
+      VERBOSE=true
+      shift
+      ;;   
+    -h|--help|-?)
+      HELP=true
+      shift
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+
+DATABASE='callbook'
+TABLE='callinfo'
+
+function usage {
+  cat << HELPSxx
+update fields in the ${TABLE} table in the ${DATABASE}  database
+setdetail  --call|-c <CALLSIGN>  [-e|--email <email>,-p|--phone <phone> , --help|-h|-?]
+  --call,-c  REQUIRED - the callsign of the record being updated
+  --email,-e email address
+  --phone,-e telephone number
+  --nickname nickname
+  --grid gridsquare
+  --class license class [TGE...]
+  --verbose
+  --help,-h  this help message
+HELPSxx
+  return 0
+  }
+
+if [ "$HELP" == true ] || [ "${CALL}" == "" ]; then
+	echo "callsign missing"
+	usage
+	if [ "${CALL}" == "" ]; then
+	  exit 1
+        else
+	  exit 0
+	fi
+fi
+
+
+SETS=""
+
+for ITEM in  $EMAIL "$PHONE" "$NICKNAME" $RHNAME $RHUSERID $GRID $CLASS "$FIRSTNAME" "$LASTNAME" "$COUNTRY" $IS_RAWNY "$ADDR2" $FISTS $SKCC $LICW $NAQCC $CWOPS
+do
+	if [ "${ITEM}" == "" ]; then continue; fi
+	if [ "${SETS}" == "" ]; then
+		SETS=$ITEM
+	else
+	  SETS="${SETS}, ${ITEM}"
+	fi
+done
+
+echo "SETS=${SETS}"
+
+if [ -n "${SETS}"  ]; then
+     #   QUERY="use rcforb; UPDATE rcforb.rawny_details SET ${SETS} WHERE callsign='${CALL}';"
+	QUERY="INSERT INTO ${DATABASE}.${TABLE} SET callsign='${CALL}', ${SETS} ON DUPLICATE KEY UPDATE  ${SETS};"
+	if [ "$VERBOSE" = true ]; then
+		echo "QUERY=${QUERY}";
+	fi
+	${MARIADB} <<< "${QUERY}"
+else
+	echo "nothing to set: ${SETS}"
+	usage
+	exit 2
+fi
+
+#QUERY="use rcforb; update rcforb.rawny_details ${SETS} where callsign='${CALL}';"
+#echo ${QUERY}
+
+
