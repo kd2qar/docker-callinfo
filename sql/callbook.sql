@@ -33,6 +33,7 @@ CREATE DATABASE IF NOT EXISTS `callbook`;
   `ccode` text DEFAULT NULL COMMENT 'dxcc entity code for the mailing address country',
   `email` text DEFAULT NULL COMMENT 'personal/preferred email address',
   `qrz_email` text DEFAULT NULL COMMENT 'email address on QRZ',
+  `hqth_email` text DEFAULT NULL COMMENT 'email addres on HamQTH',
   `licclass` text DEFAULT NULL,
   `birthyear` text DEFAULT NULL ,
   `areacode` text DEFAULT NULL,

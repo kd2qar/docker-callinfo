@@ -165,7 +165,7 @@ class CallQuery(cb_query):
         myresult['country'] = self.convertkeys(['country','adr_country'],result)
         myresult['email']=self.convertkeys(['email'],result)
         myresult['qrz_email']=self.convertkeys(['qrz_email'],result)
-        myresult['hamqth_email']=self.convertkeys(['hamqth_email'],result)
+        myresult['hqth_email']=self.convertkeys(['hamqth_email','hqth_email'],result)
         myresult['licclass']=self.convertkeys(['licclass','class'],result)
         myresult['lattitude']=self.convertkeys(['lattitude','latitude','lat'],result)
         myresult['longitude']=self.convertkeys(['longitude','lon'],result)
