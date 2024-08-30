@@ -138,13 +138,14 @@ class CallSQL(cb_query):
                 continue
             if val is None or val == '':
                 continue
+            sval = str(val).replace("'","''")
             insertcols += ",`"+x+"`"
-            insertvals += ",'"+str(val)+"'"
+            insertvals += ",'"+sval+"'"
             if not addcomma:
                 addcomma = True
             else:
                 updatecols+=","
-            updatecols += " `"+x+"` = '"+str(val).replace("'","''")+"'"
+            updatecols += " `"+x+"` = '"+sval+"'"
 
         sql += insertcols
         sql += ")\nVALUES("+insertvals+") "
@@ -172,13 +173,14 @@ class CallSQL(cb_query):
                 continue
             if val is None or val == '' or val == 'None':
                 continue
+            sval = str(val).replace("'","''")
             insertcols += ",`"+x+"`"
-            insertvals += ",'"+str(val).replace("'","''")+"'"
+            insertvals += ",'"+sval+"'"
             if not addcomma:
                 addcomma=True
             else:
                 updatecols += ", "
-            updatecols += " `"+x+"` = '"+str(val).replace("'","''")+"'"
+            updatecols += " `"+x+"` = '"+sval+"'"
 
         sql += insertcols
         sql += ")\nVALUES("+insertvals+") "

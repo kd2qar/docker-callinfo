@@ -53,6 +53,8 @@ test8: build
 test9: build
 	echo  "delete FROM callbook.callinfo where callsign = 've3ma' or callsign='zl1ks' or callsign = 've7eff';" | mariadb
 	callinfo --compact w1aw 4x6tt kc3kjq  kd8miv ve7eff zl1ks ve3ma
+testa: build
+	docker run --rm -it kd2qar/callinfo /clublog/clublog_check.py
 test: build test1 test2 test3 test4 test5 test6 test7 test8 test9
 	echo "test"
 	echo "delete FROM rcforb.rawny_details where callsign = 'w1aw';delete FROM fieldday.qrzdata where fdcall = 'w1aw';" | mariadb
