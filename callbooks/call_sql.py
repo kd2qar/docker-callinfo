@@ -74,7 +74,7 @@ class CallSQL(cb_query):
         if row is None:
             return None
         if self._columnnames is None:
-            self.getcolumns(row)
+            self.getcolumns()
         return row
     
     def dxcc(self,dxcc,retry=True):
@@ -107,7 +107,7 @@ class CallSQL(cb_query):
             columns.append(x['column_name'])
         return columns
 
-    def getcolumns(self,rowsample:dict = None):
+    def getcolumns(self): #,rowsample:dict = None):
         ## DEPRECATED - DONT USE THIS
         ## Uses a sample row from a table query to determine the column names for that table.
         ## use getcols() instead
@@ -181,7 +181,6 @@ class CallSQL(cb_query):
             else:
                 updatecols += ", "
             updatecols += " `"+x+"` = '"+sval+"'"
-
         sql += insertcols
         sql += ")\nVALUES("+insertvals+") "
         sql += "\nON DUPLICATE KEY UPDATE  "

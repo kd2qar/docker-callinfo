@@ -95,6 +95,9 @@ class CallQuery(cb_query):
         myresult = self.getresult(callsign,result)
         if refreshdb:
             self.callSQL.insertcall(callsign,myresult)
+            ## Get final aggregate
+            result=self.callSQL.callsign(callsign)
+            myresult= self.getresult(callsign,result)
         return myresult
     
     def dxcc(self,dxcc:str,retry=True):
@@ -149,7 +152,7 @@ class CallQuery(cb_query):
         myresult = dict()
 
         myresult['callsign'] = self.convertkeys(['callsign','call'],result)
-        myresult['prev_call']=self.convertkeys(['prev_call','p_call'],result)
+        myresult['prev_call'] = self.convertkeys(['prev_call','p_call'],result)
         myresult['querycall'] = query_call.lower()
         myresult['firstname'] = self.convertkeys(['firstname','fname','nick'],result).title()
         lastname = self.convertkeys(['lastname','name','adr_name'],result)
@@ -157,12 +160,14 @@ class CallQuery(cb_query):
         myresult['lastname'] = lastname
         myresult['nickname']=self.convertkeys(['nickname','nick'],result).title()
         myresult['street1']=self.convertkeys(['street1','addr1','adr_street1'],result)
+        myresult['street2']=self.convertkeys(['street2'],result)
         myresult['city']=self.convertkeys(['city','addr2','adr_city'],result)
         myresult['postalcode']=self.convertkeys(['postalcode','zip','adr_zip','zipcode'],result)
         myresult['county']= self.convertkeys(['county','us_county'],result)
         myresult['grid'] = self.convertkeys(['grid','gridsquare'],result)
         myresult['state']=self.convertkeys(['state','us_state'],result)
         myresult['country'] = self.convertkeys(['country','adr_country'],result)
+        myresult['phone'] = self.convertkeys(['phone'],result)
         myresult['email']=self.convertkeys(['email'],result)
         myresult['qrz_email']=self.convertkeys(['qrz_email'],result)
         myresult['hqth_email']=self.convertkeys(['hamqth_email','hqth_email'],result)
@@ -185,12 +190,13 @@ class CallQuery(cb_query):
         myresult['eqsl']=self.convertkeys(['eqsl'],result)
         myresult['cqzone']=self.convertkeys(['cqzone','cq'],result)
         myresult['ituzone']=self.convertkeys(['ituzone','itu'],result)
-        myresult['qsl_via']=self.convertkeys(['qsl_via','qslmgr'],result)
+        myresult['qsl_manager']=self.convertkeys(['qsl_manager','qsl_via','qslmgr'],result)
         myresult['trustee']=self.convertkeys(['trustee'],result)
         myresult['efdate']=self.convertkeys(['efdate'],result)
         myresult['expdate']=self.convertkeys(['expdate'],result)
         myresult['biodate']=self.convertkeys(['biodate'],result)
         myresult['moddate']=self.convertkeys(['moddate'],result)
+       # myresult['qrz_moddate']=self.convertkeys(['qrz_moddate'],result)
         # FIPS county identifier (USA)
         myresult['fips']=self.convertkeys(['fips'],result)
         myresult['ccode']=self.convertkeys(['ccodem'],result)
@@ -215,16 +221,23 @@ class CallQuery(cb_query):
                     myresult['lattitude']=dxccdata['lattitude']
             else:
                 assert(False)
+        for x in self.callSQL.getcolumns():
+            if x == 'qrz_moddate' or x == 'location' or x == 'fullname' or x == 'last_updated' : continue
+            assert x in myresult,"-- ------------- missing field:"+str(x)+" in myresult ------------------"
         return myresult
     
     def printResult(self,result:dict):
         """
         print formatted results
-        """        
+        """
+        if result is None:
+            return
         for x in result:
             if self.noBlanks and (result[x] is None or result[x] == ''):
                 continue
-            print(x.ljust(10)+"= "+result[x])
+            val = result[x]
+            if val is None: val = ''
+            print(x.ljust(12)+"= "+val)
 
     def spc(self,result:dict):
         if not result['state'] is None and not result['state'] == '':
