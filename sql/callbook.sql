@@ -63,7 +63,7 @@ CREATE DATABASE IF NOT EXISTS `callbook`;
  
   PRIMARY KEY (`callsign`)
 ) 
-ENGINE=InnoDB 
+ENGINE=Aria 
 DEFAULT CHARSET=utf8mb4 
 COLLATE=utf8mb4_general_ci 
 COMMENT='Details from QRZ and other sources for each callsign'
@@ -86,4 +86,5 @@ CREATE TABLE IF NOT EXISTS callbook.dxcc
 `notes`	        TEXT DEFAULT NULL       COMMENT 'Special notes and/or exceptions',
 `last_updated` timestamp DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() COMMENT 'timestamp of last update from online callbook',
 PRIMARY KEY (`dxcc`)
-) COMMENT='Contains information on DXCC entitities';
+) COMMENT='Contains information on DXCC entitities'
+ENGINE=Aria;
