@@ -47,6 +47,7 @@ def get_key(keyname:str,query_result:dict):
 def get_sql(callsign:str,table:str,data:dict):
     # soso
     map = getFieldMap(table)
+    if map is None: map = {'callsign': 'callsign', 'email': 'email', 'firstname': 'firstname'}
     columnnames = map.keys()
     columnnames = list(map)
     sql = "INSERT INTO "+table+" "
