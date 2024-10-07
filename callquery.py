@@ -171,7 +171,8 @@ callquery.noBlanks = noBlanks
 results = []
 
 if listTables :
-    callquery.listTables()
+    tables = callquery.listTables()
+    print(tables)
     exit(0)
 
 for cal in callsigns:

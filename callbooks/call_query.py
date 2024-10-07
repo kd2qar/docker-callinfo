@@ -291,7 +291,7 @@ class CallQuery(cb_query):
             if (a == 'callbook' or a == 'qrz' or a == 'hamqth' or a == 'mariadb' or a == 'mysql' or a == 'clublog' ):
                 continue
             tables.append(a)
-        print(tables)
+        # print(tables)
         return tables
 
 
