@@ -282,3 +282,16 @@ class CallQuery(cb_query):
                 cmap[x[0]]=x[1]
             return cmap
         return None
+
+    def listTables(self):
+        cfg = self._cfg
+        sects = cfg.sections()
+        tables = []
+        for a in sects:
+            if (a == 'callbook' or a == 'qrz' or a == 'hamqth' or a == 'mariadb' or a == 'mysql' or a == 'clublog' ):
+                continue
+            tables.append(a)
+        print(tables)
+        return tables
+
+

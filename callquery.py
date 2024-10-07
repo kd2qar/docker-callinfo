@@ -95,21 +95,22 @@ noResults = False
 forceRefresh=False
 noBlanks=False
 compact = False
-
+listTables = False
 gettable = False
 
 callsigns = []
 
 def help():
     print("callinfo [--help] [-n|--nosql] [(-t|--table) <database>.<table> ]  <callsign1 callsign2 ...>")
-    print("\t --help:     Print this help and exit")
-    print("\t --nosql:    Do not output the sql statements")
-    print("\t --noresult: Do not output the results list")
-    print("\t --noblanks: Do not output empty results")
-    print("\t --brief:    Same as --nosql --noblanks")
-    print("\t --table:    Specify the database table to be used for the sql output")
-    print("\t --qrz:      Only query data from QRZ.com")
-    print("\t --hamqth:   Only query data from hamqth.com")
+    print("\t --help:       Print this help and exit")
+    print("\t --nosql:      Do not output the sql statements")
+    print("\t --noresult:   Do not output the results list")
+    print("\t --noblanks:   Do not output empty results")
+    print("\t --brief:      Same as --nosql --noblanks")
+    print("\t --table:      Specify the database table to be used for the sql output")
+    print("\t --listtables: Get a list of table available in config file")
+    print("\t --qrz:        Only query data from QRZ.com")
+    print("\t --hamqth:     Only query data from hamqth.com")
 
 for cal in sys.argv[1:]:
     if cal[:1] == '-':
@@ -119,6 +120,9 @@ for cal in sys.argv[1:]:
         if cal == '-t' or cal == '--table':
             gettable = True
             print("-- get table on next round")
+            continue
+        if cal == '-lt' or cal == '--listtables' or cal == '--listtable':
+            listTables = True
             continue
         if cal == '-n' or cal == '--nosql':
             nosql=True
@@ -165,6 +169,11 @@ callquery.forceRefresh = forceRefresh
 callquery.noBlanks = noBlanks
 #callquery.compact = compact
 results = []
+
+if listTables :
+    callquery.listTables()
+    exit(0)
+
 for cal in callsigns:
     if not compact:
         print("-- "+cal+" --")
