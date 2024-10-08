@@ -111,6 +111,8 @@ def help():
     print("\t --listtables: Get a list of table available in config file")
     print("\t --qrz:        Only query data from QRZ.com")
     print("\t --hamqth:     Only query data from hamqth.com")
+    print("\t --compact:    call,name,grid,count,city,SPC in table form")
+    print("\t --refresh:    Force update from callbook")
 
 for cal in sys.argv[1:]:
     if cal[:1] == '-':
