@@ -6,6 +6,7 @@ MARIADB=mariadb
 
 POSITIONAL_ARGS=()
 #QUIET=0
+DXCC=
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -41,6 +42,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --country)
       COUNTRY="country='$2'"
+      shift;shift
+      ;;
+    --dxcc)
+      DXCC="dxcc=${2}"
       shift;shift
       ;;
     --grid)
@@ -108,7 +113,7 @@ fi
 
 SETS=""
 
-for ITEM in  $EMAIL "$PHONE" "$NICKNAME" $RHNAME $RHUSERID $GRID $CLASS "$FIRSTNAME" "$LASTNAME" "$COUNTRY" $IS_RAWNY "$ADDR2" $FISTS $SKCC $LICW $NAQCC $CWOPS
+for ITEM in  $EMAIL "$PHONE" "$NICKNAME" $RHNAME $RHUSERID $GRID $CLASS "$FIRSTNAME" "$LASTNAME" "$COUNTRY" $IS_RAWNY "$ADDR2" $FISTS $SKCC $LICW $NAQCC $CWOPS "$DXCC"
 do
 	if [ "${ITEM}" == "" ]; then continue; fi
 	if [ "${SETS}" == "" ]; then

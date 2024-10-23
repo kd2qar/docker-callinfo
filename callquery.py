@@ -11,9 +11,10 @@ print("/*")
 urllib3.disable_warnings()
 useHamqth=True
 useQrz=True
-nosql=False
+nosql=True
 callquery = CallQuery('./settings.cfg')
 table = "rcforb.rawny_details"
+table = ''
 
 if callquery._cfg:
     try:
@@ -88,7 +89,7 @@ cal = 'w1aw'
 print(sys.argv[1:])
 print ("*/")
 
-nosql=False
+nosql=True
 useQrz = True
 useHamqth = True
 noResults = False
@@ -161,6 +162,7 @@ for cal in sys.argv[1:]:
         print("-- new table changed from "+table+" to "+cal+"")
         table = cal
         gettable = False
+        nosql = False
         continue
     callsigns.append(cal)
     continue
