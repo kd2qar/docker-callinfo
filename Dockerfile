@@ -6,7 +6,7 @@ LABEL MAINTAINER="Mark Vincett <kd2qar@gmail.com>"
 RUN apt-get update  \
      && apt-get -y upgrade  \
      && DEBIAN_FRONTEND="noninteractive" apt-get install -y --no-install-recommends python3-requests python3-xmltodict python3-certifi python3-urllib3  python3-mysqldb python3-pymysql  ca-certificates \
-     && rm -rf /var/lib/apt/lists*
+     && rm -rf /var/lib/apt/lists/*
 
 COPY dot.bashrc /root/.bashrc
 
