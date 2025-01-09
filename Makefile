@@ -5,13 +5,13 @@ NAME=callquery
 all: build
 
 build:
-	docker build --rm  --tag ${TAG} .
+	docker compose build --pull
 
 run:
-	docker run  -it --rm --name ${NAME} ${TAG} /bin/bash
+	docker compose run  -i --rm --name ${NAME} callinfo /bin/bash
 
-shell: build
-	docker run  -it --rm --name ${NAME} ${TAG} /bin/bash
+shell: 
+	docker compose run  -i --rm --name ${NAME} callinfo /bin/bash
 
 testnosql: build
 	./callinfo --nosql w1aw

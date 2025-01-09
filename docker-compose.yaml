@@ -1,0 +1,10 @@
+
+services:
+  callinfo:
+    image: kd2qar/callinfo
+    pull_policy: missing
+    build: 
+      context: .
+      tags:
+        - "kd2qar/callinfo"
+      

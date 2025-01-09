@@ -1,6 +1,7 @@
 #!/bin/bash
 
 USERFILES="--mount type=bind,source=/etc/passwd,target=/etc/passwd,readonly --mount type=bind,source=/etc/group,target=/etc/group,readonly"
+USERVOLS="--volume /etc/passwd:/etc/passwd:ro --volume /etc/group:/etc/group:ro"
 USERX="--user $(id -u):$(id -g) "
 if [ $(id -u) = 0 ]; then
 	HDIR='/root/'
@@ -10,8 +11,9 @@ fi
 
 if [ -f ${HDIR}/.my.cnf ]; then
 	CNF="--mount type=bind,source=${HDIR}.my.cnf,target=/root/.my.cnf,readonly --mount type=bind,source=${HDIR}.my.cnf,target=${HDIR}.my.cnf,readonly"
+    CBFVOL="--volume ${HDIR}.my.cnf:/root/.my.cnf:ro --volume ${HDIR}.my.cnf:${HDIR}.my.cnf:ro"
 	#echo ${CNF}
 fi
 
-docker run -it --rm ${USERFILES} ${CNF} ${USERX}  kd2qar/callinfo /callinfo/callquery.py ${@} 
-
+#docker run -it --rm ${USERFILES} ${CNF} ${USERX}  kd2qar/callinfo /callinfo/callquery.py ${@} 
+docker compose run --quiet-pull -i --rm --remove-orphans ${USERVOLS} ${CNFVOL} ${USERX} callinfo /callinfo/callquery.py ${@}
