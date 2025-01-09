@@ -15,5 +15,14 @@ if [ -f ${HDIR}/.my.cnf ]; then
 	#echo ${CNF}
 fi
 
+if [ -L "${0}" ]; then
+  # Symbolic link. Get the actual file location
+  ROOT=$(readlink ${0})
+else
+  ROOT=${0}
+fi
+echo
+PROJDIR="$(dirname ${ROOT})"
+
 #docker run -it --rm ${USERFILES} ${CNF} ${USERX}  kd2qar/callinfo /callinfo/callquery.py ${@} 
-docker compose run --quiet-pull -i --rm --remove-orphans ${USERVOLS} ${CNFVOL} ${USERX} callinfo /callinfo/callquery.py ${@}
+docker compose --project-directory ${PROJDIR} run --quiet-pull -i --rm --remove-orphans ${USERVOLS} ${CNFVOL} ${USERX} callinfo /callinfo/callquery.py ${@}
