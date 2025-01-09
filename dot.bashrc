@@ -1,7 +1,7 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
 
 PS1='${debian_chroot:+($debian_chroot)}\h:\w\$ '
-eval "$(dircolors)"
+
 alias ls='ls --color'
 alias ll='ls --color -Alh'
 alias l='ls --color -lA'
