@@ -107,7 +107,7 @@ def help():
     print("\t --nosql:      Do not output the sql statements")
     print("\t --noresult:   Do not output the results list")
     print("\t --noblanks:   Do not output empty results")
-    print("\t --brief:      Same as --nosql --noblanks")
+    print("\t --brief|-b:   Same as --nosql --noblanks")
     print("\t --table:      Specify the database table to be used for the sql output")
     print("\t --listtables: Get a list of table available in config file")
     print("\t --qrz:        Only query data from QRZ.com")
@@ -143,7 +143,7 @@ for cal in sys.argv[1:]:
         if cal == '--noblanks':
             noBlanks = True
             continue
-        if cal == '--brief':
+        if cal == '--brief' or cal == '-b':
             noBlanks = True
             nosql = True
             continue
