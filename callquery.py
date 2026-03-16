@@ -12,7 +12,14 @@ urllib3.disable_warnings()
 useHamqth=True
 useQrz=True
 nosql=True
-callquery = CallQuery('./settings.cfg')
+
+import sys, os
+if getattr(sys, 'frozen', False):
+    app_path = os.path.dirname(sys.executable)
+elif __file__:
+    app_path = os.path.dirname(__file__)
+
+callquery = CallQuery(app_path + '/settings.cfg')
 table = "rcforb.rawny_details"
 table = ''
 
@@ -122,7 +129,7 @@ for cal in sys.argv[1:]:
             exit(0)
         if cal == '-t' or cal == '--table':
             gettable = True
-            print("-- get table on next round")
+            # print("-- get table on next round")
             continue
         if cal == '-lt' or cal == '--listtables' or cal == '--listtable':
             listTables = True
@@ -159,7 +166,8 @@ for cal in sys.argv[1:]:
         help()
         exit(2)
     if gettable == True:
-        print("-- new table changed from "+table+" to "+cal+"")
+        if table != cal:
+            print("-- new table changed from "+table+" to "+cal+"")
         table = cal
         gettable = False
         nosql = False
