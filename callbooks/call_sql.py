@@ -42,20 +42,20 @@ class CallSQL(cb_query):
                 sqlhost     = self._cfg.get('mariadb','host')
                 sqltable    = self._cfg.get('mariadb','table')
                 sqlport     = int(self._cfg.get('mariadb','port'))
-            elif self.cfg.has_section('sql'):
+            elif self._cfg.has_section('sql'):
                 sqlusername = self._cfg.get('sql','username')
                 sqlpassword = self._cfg.get('sql','password')
                 sqldatabase = self._cfg.get('sql','database')
                 sqlhost     = self._cfg.get('sql','host')
                 sqltable    = self._cfg.get('sql','table')
-                sqlport     = int(self._cfg.get('mariadb','port'))
-            elif self.cfg.has_section('mysql'):
+                sqlport     = int(self._cfg.get('sql','port'))
+            elif self._cfg.has_section('mysql'):
                 sqlusername = self._cfg.get('mysql','username')
                 sqlpassword = self._cfg.get('mysql','password')
                 sqldatabase = self._cfg.get('mysql','database')
                 sqlhost     = self._cfg.get('mysql','host')
                 sqltable    = self._cfg.get('mysql','table')
-                sqlport     = int(self._cfg.get('mariadb','port'))
+                sqlport     = int(self._cfg.get('mysql','port'))
         if self._db is None or not self._db.open:
             self._db = pymysql.connect( host=sqlhost, user=sqlusername, passwd=sqlpassword, database=sqldatabase, port=sqlport)
         cur = self._db.cursor(cursor=DictCursor)

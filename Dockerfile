@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim as root
+FROM debian:bookworm-slim AS root
 #FROM debian:stable-slim
 
 LABEL MAINTAINER="Mark Vincett <kd2qar@gmail.com>"

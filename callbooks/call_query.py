@@ -62,6 +62,7 @@ class CallQuery(cb_query):
                 print('oops SQL')
                 print(ex)
                 print('*/')
+                refreshdb = False
             else:
                 if (result):
                     refreshdb = False
@@ -94,10 +95,13 @@ class CallQuery(cb_query):
             return myresult
         myresult = self.getresult(callsign,result)
         if refreshdb:
-            self.callSQL.insertcall(callsign,myresult)
-            ## Get final aggregate
-            result=self.callSQL.callsign(callsign)
-            myresult= self.getresult(callsign,result)
+            try:
+                self.callSQL.insertcall(callsign,myresult)
+                ## Get final aggregate
+                result=self.callSQL.callsign(callsign)
+                myresult= self.getresult(callsign,result)
+            except:
+                print("/* cannot insert callsign */")
         return myresult
     
     def dxcc(self,dxcc:str,retry=True):
@@ -137,7 +141,10 @@ class CallQuery(cb_query):
             else:
                 refreshdb = True
         if refreshdb:
-            self.callSQL.insertdxcc(dxcc,result)
+            try:
+                self.callSQL.insertdxcc(dxcc,result)
+            except:
+                print('/* oops DXCC insert */')
         return result
 
 
@@ -221,9 +228,12 @@ class CallQuery(cb_query):
                     myresult['lattitude']=dxccdata['lattitude']
             else:
                 assert(False)
-        for x in self.callSQL.getcolumns():
-            if x == 'qrz_moddate' or x == 'location' or x == 'fullname' or x == 'last_updated' : continue
-            assert x in myresult,"-- ------------- missing field:"+str(x)+" in myresult ------------------"
+        try:
+            for x in self.callSQL.getcolumns():
+                if x == 'qrz_moddate' or x == 'location' or x == 'fullname' or x == 'last_updated' : continue
+                assert x in myresult,"-- ------------- missing field:"+str(x)+" in myresult ------------------"
+        except:
+            print('/* callSQL failed */')
         return myresult
     
     def printResult(self,result:dict):

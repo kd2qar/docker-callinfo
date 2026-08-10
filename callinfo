@@ -25,4 +25,4 @@ echo
 PROJDIR="$(dirname ${ROOT})"
 
 #docker run -it --rm ${USERFILES} ${CNF} ${USERX}  kd2qar/callinfo /callinfo/callquery.py ${@} 
-docker compose --project-directory ${PROJDIR} run --quiet-pull -i --rm --remove-orphans ${USERVOLS} ${CNFVOL} ${USERX} callinfo /callinfo/callquery.py ${@}
+docker compose --project-directory ${PROJDIR} run -q --quiet-build --quiet-pull -i --rm --remove-orphans ${USERVOLS} ${CNFVOL} ${USERX} callinfo /callinfo/callquery.py ${@}

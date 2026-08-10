@@ -4,6 +4,9 @@
 import sys
 import certifi
 import urllib3
+import time
+import random
+
 from pathlib import Path
 from callbooks.call_query import CallQuery
 
@@ -187,7 +190,15 @@ if listTables :
     print(tables)
     exit(0)
 
+N = len(callsigns)
+
 for cal in callsigns:
+    # RANDOM SLEEP INTERVALL
+    if N > 10:
+        delay = random.uniform(0.5, 3.5)
+        print(f"-- Async sleeping for {delay:.2f} seconds...")
+        time.sleep(delay)
+
     if not compact:
         print("-- "+cal+" --")
     result = callquery.callsign(cal)
