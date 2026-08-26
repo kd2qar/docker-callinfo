@@ -64,8 +64,8 @@ CREATE DATABASE IF NOT EXISTS `callbook`;
   PRIMARY KEY (`callsign`)
 ) 
 ENGINE=Aria 
-DEFAULT CHARSET=utf8mb4 
-COLLATE=utf8mb4_general_ci 
+-- DEFAULT CHARSET=utf8mb4 
+-- COLLATE=utf8mb4_general_ci 
 COMMENT='Details from QRZ and other sources for each callsign'
 ;
 
