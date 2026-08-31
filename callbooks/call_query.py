@@ -24,6 +24,7 @@ class CallMissingCredentials(Exception):
 class CallQuery(cb_query):
     def __init__(self,cfg=None):
         super().__init__(cfg)
+        self.resultSource = None
         self.noBlanks = False
         self.useQrz = True
         self.useHamqth = True
@@ -65,6 +66,7 @@ class CallQuery(cb_query):
                 refreshdb = False
             else:
                 if (result):
+                    self.resultSource = "db"
                     refreshdb = False
                     useQrz=False
                     useHamqth=False 
@@ -76,6 +78,7 @@ class CallQuery(cb_query):
                 print(ex)
                 print('*/')
             else:
+                self.resultSource = "qrz"
                 useHamqth=False
                 refreshdb = True
 
@@ -87,6 +90,7 @@ class CallQuery(cb_query):
                 print(ex1)
                 print('*/')
             else:
+                self.resultSource = "hamqth"
                 print('-- using hamqth')
                 print("/*");print(result);print("*/")
                 refreshdb = True

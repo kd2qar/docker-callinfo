@@ -193,15 +193,17 @@ if listTables :
 N = len(callsigns)
 
 for cal in callsigns:
-    # RANDOM SLEEP INTERVALL
-    if N > 10:
-        delay = random.uniform(0.5, 3.5)
-        print(f"-- Async sleeping for {delay:.2f} seconds...")
-        time.sleep(delay)
-
     if not compact:
         print("-- "+cal+" --")
     result = callquery.callsign(cal)
+    #print(f"RESULT SOURCE = '{callquery.resultSource}'") 
+    if callquery.resultSource == 'qrz':
+        # RANDOM SLEEP INTERVAL
+        if N > 10:
+            delay = random.uniform(0.5, 3.5)
+            print(f"-- Async sleeping for {delay:.2f} seconds...")
+            time.sleep(delay)
+
     if not result is None and 'callsign' in result and result['callsign'] != '':
         if compact:
             results.append(result)
