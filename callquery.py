@@ -221,7 +221,7 @@ for cal in callsigns:
         print("/* ",result," */")
 
 if compact:
-    fields = {'callsign':len('callsign'),'fullname':len('name'),'grid':len('grid'),'county':len('county'),'city':len('city'),'SPC':len('SPC'),'licclass':len('licclass')}
+    fields = {'callsign':len('callsign'),'fullname':len('name'),'grid':len('grid'),'county':len('county'),'city':len('city'),'SPC':len('SPC'),'licclass':len('licclass'),'qrz_email':len('qrz_email')}
     callquery.compact_header_emitted = False
     for r in results:
         if not 'fullname' in r:
