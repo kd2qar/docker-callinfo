@@ -102,10 +102,18 @@ class CallQuery(cb_query):
             try:
                 self.callSQL.insertcall(callsign,myresult)
                 ## Get final aggregate
-                result=self.callSQL.callsign(callsign)
+                #print(f"\nmyresult:\n{myresult}\n")
+                trycall = callsign
+                if 'callsign' in myresult and myresult['callsign'].lower() != callsign.lower():
+                    trycall = myresult['callsign'].lower()
+                elif 'call' in myresult and myresult['call'].lower() != callsign.lower():
+                    trycall = myresult['call'].lower()
+                #print(f"trycall={trycall}")
+                result=self.callSQL.callsign(trycall)
+                #print(f"\nresult:\n{result}\n")
                 myresult= self.getresult(callsign,result)
-            except:
-                print("/* cannot insert callsign */")
+            except Exception as sqlex:
+                print(f"/* cannot insert callsign: {sqlex} */")
         return myresult
     
     def dxcc(self,dxcc:str,retry=True):
@@ -121,8 +129,8 @@ class CallQuery(cb_query):
                     # force a refresh
                     result = None
         except Exception as ex:
-            print('/* oops DXCC SQL')
-            print(str(ex) + '*/')
+            print(f'/* oops DXCC SQL {str(ex)} */')
+            #print(str(ex) + '*/')
         else:
             if (result):
                 refreshdb = False

@@ -4,14 +4,14 @@ import os
 import requests
 import xmltodict
 import configparser
-from configparser import SafeConfigParser
-
+#from configparser import SafeConfigParser
+from configparser import ConfigParser
 
 class cb_query(object):
     def __init__(self, cfg:str=None):
-        self._cfg:SafeConfigParser = None
+        self._cfg:ConfigParser = None
         if cfg:
-            self._cfg:SafeConfigParser = SafeConfigParser()
+            self._cfg:ConfigParser = ConfigParser()
             self._cfg.read(cfg)
         else:
             self._cfg = None

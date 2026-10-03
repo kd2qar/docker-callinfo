@@ -156,9 +156,25 @@ class CallSQL(cb_query):
              
     def insertcall(self,callsign:str,data:dict):
         # soso
+        
+        icallsign = callsign.lower()
+        #print(f"icallsign={icallsign}")
+        #print(data)
+        foundcall = None
+        if 'callsign' in data:
+            foundcall = data['callsign']
+            #print(f"foundcall(callsign)={foundcall}")
+        elif 'call' in data:
+            foundcall = data['call']
+            #print(f"foundcall(call)={foundcall}")
+        #print(f"FOUNDCALL = {foundcall}")
+        if foundcall is not None and foundcall.lower() != callsign.lower():
+            icallsign = foundcall.lower()
+            print(f"-- INSERTING {icallsign} FOR {callsign} --")
+        
         sql = "INSERT INTO `"+self._sqltable+"` "
         insertcols = "\n( `callsign`"
-        insertvals = "'"+callsign+"'"
+        insertvals = "'"+icallsign+"'"
         updatecols = " "
         addcomma=False
 
@@ -185,5 +201,6 @@ class CallSQL(cb_query):
         sql += ")\nVALUES("+insertvals+") "
         sql += "\nON DUPLICATE KEY UPDATE  "
         sql += updatecols
+        #print(f"\n{sql}\n")
         n = self._dbcursor.execute(sql)
         self._db.commit()

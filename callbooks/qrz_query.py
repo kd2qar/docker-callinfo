@@ -4,9 +4,8 @@
 import os
 import requests
 import xmltodict
-import configparser
+
 from .cb_query import cb_query
-from configparser import SafeConfigParser
 
 class QRZerror(Exception):
     pass
@@ -34,7 +33,8 @@ class QRZ(cb_query):
             raise QRZMissingCredentials("No Username/Password found")
         version='1.31'
 
-        url = '''https://xmldata.qrz.com/xml/{3}/?username={0}&password={1};;agent={2}'''.format(username, password,agent,apiVersion)
+        #url = '''https://xmldata.qrz.com/xml/{3}/?username={0}&password={1};;agent={2}'''.format(username, password,agent,apiVersion)
+        url = f'https://xmldata.qrz.com/xml/{apiVersion}/?username={username}&password={password};;agent={agent}'
         self._session = requests.Session()
         self._session.verify = bool(os.getenv('SSL_VERIFY', False))
         r = self._session.get(url)
@@ -48,7 +48,8 @@ class QRZ(cb_query):
     def callsign(self, callsign, retry=True):
         if self._session_key is None:
             self._get_session()
-        url = """http://xmldata.qrz.com/xml/current/?s={0}&callsign={1}""".format(self._session_key, callsign)
+        #url = """http://xmldata.qrz.com/xml/current/?s={0}&callsign={1}""".format(self._session_key, callsign)
+        url = f"http://xmldata.qrz.com/xml/current/?s={self._session_key}&callsign={callsign}"
         r = self._session.get(url)
         if r.status_code != 200:
             raise Exception("Error Querying: Response code {}".format(r.status_code))
@@ -79,7 +80,8 @@ class QRZ(cb_query):
             self._get_session()
 
         # https://xmldata.qrz.com/xml/current/?s=d0cf9d7b3b937ed5f5de28ddf5a0122d;dxcc=291
-        url = """https://xmldata.qrz.com/xml/current/?s={0};dxcc={1}""".format(self._session_key,dxcc)
+        #url = """https://xmldata.qrz.com/xml/current/?s={0};dxcc={1}""".format(self._session_key,dxcc)
+        url = f"https://xmldata.qrz.com/xml/current/?s={self._session_key};dxcc={dxcc}"
         r = self._session.get(url)
         if r.status_code != 200:
             raise Exception("Error Querying: Response code P{".format(r.status_code))
