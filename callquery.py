@@ -200,7 +200,7 @@ for cal in callsigns:
     if callquery.resultSource == 'qrz':
         # RANDOM SLEEP INTERVAL
         if N > 10:
-            delay = random.uniform(0.5, 3.5)
+            delay = random.uniform(2.0, 3.5)
             print(f"-- Async sleeping for {delay:.2f} seconds...")
             time.sleep(delay)
 

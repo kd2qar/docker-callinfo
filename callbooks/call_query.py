@@ -242,10 +242,10 @@ class CallQuery(cb_query):
                 assert(False)
         try:
             for x in self.callSQL.getcolumns():
-                if x == 'qrz_moddate' or x == 'location' or x == 'fullname' or x == 'last_updated' : continue
+                if x == 'qrz_moddate' or x == 'location' or x == 'fullname' or x == 'last_updated' or x == 'get_email' : continue
                 assert x in myresult,"-- ------------- missing field:"+str(x)+" in myresult ------------------"
-        except:
-            print('/* callSQL failed */')
+        except Exception as e:
+            print(f'/* callSQL failed: \n{e} \n*/')
         return myresult
     
     def printResult(self,result:dict):
